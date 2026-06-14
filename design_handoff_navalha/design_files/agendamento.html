@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tonsor Barber — Agendamento · Navalha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #0F0D0A; --bg-soft: #15120E; --bg-elev: #1C1813;
+  --ink: #F2EBDC; --ink-soft: #C9C0AC; --ink-mute: #8A8170;
+  --rule: #2A241B;
+  --accent: #C9A35E; --accent-soft: #8C6F3A; --accent-ink: #0F0D0A; --hl: #E8C97A;
+  --ok: #7BA776; --danger: #C9533E;
+}
+[data-theme="moderno"] { --bg:#0B1116; --bg-soft:#11181F; --bg-elev:#182028; --ink:#ECF1F4; --ink-soft:#B6C2CB; --ink-mute:#6E7C86; --rule:#1F2A33; --accent:#00C896; --accent-soft:#027E60; --accent-ink:#08110D; --hl:#2DE3B1; }
+[data-theme="terra"] { --bg:#F1ECE3; --bg-soft:#E8E1D2; --bg-elev:#FFFFFF; --ink:#1A1614; --ink-soft:#4A413A; --ink-mute:#7A6F62; --rule:#D5CCB9; --accent:#2A4A3B; --accent-soft:#8B5A2B; --accent-ink:#F1ECE3; --hl:#C46A2A; --ok:#3D6B4E; --danger:#A8442E; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.serif { font-family: "Cormorant Garamond", serif; }
+.mono { font-family: "JetBrains Mono", monospace; }
+.tnum { font-variant-numeric: tabular-nums; }
+button { font: inherit; cursor: pointer; border: none; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+
+/* === TOPBAR (slim public navalha) === */
+.public-bar {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 0;
+}
+.public-bar-inner { display: flex; justify-content: space-between; align-items: center; }
+.pb-left { display: flex; align-items: center; gap: 14px; }
+.pb-left .mini-mark { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: "Cormorant Garamond", serif; font-style: italic; display: grid; place-items: center; font-size: 18px; }
+.pb-left .powered { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; color: var(--ink-mute); text-transform: uppercase; }
+.pb-left .powered b { color: var(--ink); font-family: "Cormorant Garamond", serif; letter-spacing: .14em; font-weight: 600; }
+.pb-right { display: flex; gap: 10px; align-items: center; }
+.pb-right .lang-pill { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-mute); text-transform: uppercase; }
+.theme-dots { display: flex; gap: 4px; padding: 4px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 999px; }
+.theme-dots button { width: 18px; height: 18px; border-radius: 50%; background: transparent; border: none; padding: 0; cursor: pointer; display: grid; place-items: center; }
+.theme-dots button[aria-pressed="true"] .sw { box-shadow: 0 0 0 2px var(--accent); }
+.theme-dots button .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
+
+/* === HERO === */
+.shop-hero { padding: 32px 0 24px; }
+.shop-hd { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-bottom: 20px; }
+.shop-hd .crumb { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .22em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 12px; }
+.shop-hd .crumb a { color: var(--accent); }
+.shop-hd h1 { font-family: "Cormorant Garamond", serif; font-size: clamp(64px, 8vw, 112px); font-weight: 500; line-height: .92; margin: 0; letter-spacing: -.01em; }
+.shop-hd h1 .it { font-style: italic; color: var(--accent); }
+.shop-meta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.shop-meta .item { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); }
+.shop-meta .star { color: var(--accent); font-weight: 600; }
+.shop-meta .dot { color: var(--ink-mute); }
+.shop-actions { display: flex; gap: 8px; }
+.shop-actions button { padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+.shop-actions .save { background: var(--bg-soft); color: var(--ink); border: 1px solid var(--rule); }
+.shop-actions .share { background: var(--bg-soft); color: var(--ink); border: 1px solid var(--rule); }
+
+/* Photo strip */
+.photo-strip {
+  display: grid; grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 180px 180px; gap: 6px;
+  border-radius: 12px; overflow: hidden;
+}
+.photo { background: linear-gradient(135deg, #3a2818, #6b4422); border-radius: 4px; position: relative; }
+.photo.p1 { grid-row: 1 / 3; background: linear-gradient(135deg, #2a1f12, #4f3820); }
+.photo.p2 { background: linear-gradient(135deg, #4a3622, #2a1d10); }
+.photo.p3 { background: linear-gradient(135deg, #1f1810, #5a4028); }
+.photo.p4 { background: linear-gradient(135deg, #4d381f, #2a1f12); }
+.photo.p5 { background: linear-gradient(135deg, #5a4028, #2c1e10); }
+.photo .photo-tag { position: absolute; bottom: 12px; left: 14px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .18em; color: rgba(255,255,255,.75); text-transform: uppercase; }
+.photo-strip .more {
+  position: absolute; bottom: 12px; right: 12px;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
+  color: white; font-family: "JetBrains Mono", monospace; font-size: 11px;
+  padding: 6px 10px; border-radius: 4px;
+}
+
+/* === MAIN GRID === */
+.book-grid { display: grid; grid-template-columns: 1fr 380px; gap: 32px; padding: 32px 0 80px; }
+
+.col-main { display: flex; flex-direction: column; gap: 40px; }
+
+.book-section { }
+.book-section .sec-hd { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.book-section .sec-hd .num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center;
+  font-family: "Cormorant Garamond", serif; font-weight: 600; font-style: italic; font-size: 16px;
+  flex-shrink: 0;
+}
+.book-section.done .sec-hd .num { background: var(--ok); }
+.book-section.done .sec-hd .num::after { content: "✓"; font-style: normal; }
+.book-section.done .sec-hd .num span { display: none; }
+.book-section .sec-hd h2 { font-family: "Cormorant Garamond", serif; font-size: 36px; font-weight: 500; line-height: 1; margin: 0; letter-spacing: -.01em; }
+.book-section .sec-hd h2 .it { font-style: italic; color: var(--accent); }
+.book-section .sec-hd .selected-tag { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+
+/* Service list */
+.svc-list { display: grid; gap: 8px; }
+.svc-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 24px; padding: 18px 22px;
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 10px; cursor: pointer; align-items: center;
+  transition: border-color .15s;
+}
+.svc-row:hover { border-color: var(--accent-soft); }
+.svc-row.selected { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 8%, var(--bg-soft)); }
+.svc-row .nm { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1.1; }
+.svc-row .desc { font-size: 13px; color: var(--ink-soft); margin-top: 4px; max-width: 480px; }
+.svc-row .dur { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); letter-spacing: .12em; text-transform: uppercase; text-align: right; }
+.svc-row .pr { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 26px; color: var(--accent); text-align: right; }
+.svc-row .pr .cur { font-size: 14px; color: var(--ink-mute); margin-right: 3px; font-weight: 500; }
+
+/* Barbers */
+.barber-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.barber-card {
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 12px; padding: 16px; text-align: center;
+  cursor: pointer; transition: border-color .15s, transform .15s;
+}
+.barber-card:hover { border-color: var(--accent-soft); transform: translateY(-2px); }
+.barber-card.selected { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 8%, var(--bg-soft)); }
+.barber-card .av { width: 72px; height: 72px; margin: 0 auto 12px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-soft)); display: grid; place-items: center; color: var(--accent-ink); font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 30px; }
+.barber-card .nm { font-family: "Cormorant Garamond", serif; font-size: 17px; font-weight: 600; line-height: 1.1; }
+.barber-card .role { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; margin-top: 4px; }
+.barber-card .star { color: var(--accent); font-size: 11px; margin-top: 8px; }
+.barber-card.any .av { background: var(--bg); border: 1px dashed var(--accent); color: var(--accent); }
+
+/* Calendar + times */
+.cal-times { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+.cal-card { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; }
+.cal-card .cal-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.cal-card .cal-hd .mo { font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 600; }
+.cal-card .cal-hd .ar { display: flex; gap: 6px; }
+.cal-card .cal-hd .ar button { width: 26px; height: 26px; border-radius: 4px; background: var(--bg); border: 1px solid var(--rule); color: var(--ink); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-dow { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .12em; color: var(--ink-mute); text-align: center; padding: 6px 0; text-transform: uppercase; }
+.cal-day { aspect-ratio: 1; border-radius: 6px; display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink); cursor: pointer; background: var(--bg); position: relative; }
+.cal-day:hover:not(.muted):not(.selected) { background: var(--bg-elev); }
+.cal-day.muted { color: var(--ink-mute); opacity: .3; cursor: not-allowed; }
+.cal-day.full::after { content: ""; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--ok); }
+.cal-day.selected { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+.times-card { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 10px; padding: 18px; }
+.times-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.times-hd .t { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; }
+.times-hd .lbl { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; }
+.times-group { margin-bottom: 16px; }
+.times-group:last-child { margin-bottom: 0; }
+.times-group .gl { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .18em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+.times-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.time-slot { padding: 10px 0; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); text-align: center; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink); cursor: pointer; }
+.time-slot:hover:not(.taken):not(.selected) { border-color: var(--accent-soft); }
+.time-slot.taken { opacity: .3; text-decoration: line-through; cursor: not-allowed; }
+.time-slot.selected { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.time-slot.rec { border-color: var(--accent-soft); position: relative; }
+.time-slot.rec::after { content: "★"; position: absolute; top: 1px; right: 3px; color: var(--accent); font-size: 9px; }
+
+/* === SUMMARY SIDE === */
+.summary-side { position: sticky; top: 90px; align-self: start; }
+.summary-card {
+  background: var(--bg-soft); border: 1px solid var(--accent-soft);
+  border-radius: 16px; padding: 26px;
+  box-shadow: 0 30px 80px -30px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.summary-card .sh-hd { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.summary-card .sh-hd .t { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1; }
+.summary-card .sh-hd .price-preview { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; color: var(--accent); text-transform: uppercase; }
+.summary-rows { display: flex; flex-direction: column; gap: 0; margin-top: 16px; }
+.sm-row { display: grid; grid-template-columns: 36px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dashed var(--rule); align-items: center; }
+.sm-row:last-of-type { border-bottom: none; }
+.sm-row .ic { width: 32px; height: 32px; border-radius: 8px; background: var(--bg); border: 1px solid var(--rule); display: grid; place-items: center; color: var(--ink-mute); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 14px; }
+.sm-row.done .ic { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.sm-row.done .ic::after { content: "✓"; font-style: normal; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; }
+.sm-row.done .ic span { display: none; }
+.sm-row .body .l { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .18em; color: var(--ink-mute); text-transform: uppercase; }
+.sm-row .body .v { font-family: "Cormorant Garamond", serif; font-size: 16px; font-weight: 600; line-height: 1.1; margin-top: 3px; }
+.sm-row.empty .body .v { color: var(--ink-mute); font-style: italic; font-weight: 500; }
+
+.summary-total { margin-top: 16px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.summary-total .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+.summary-total .row .k { color: var(--ink-mute); }
+.summary-total .row.tot { padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--rule); }
+.summary-total .row.tot .k { color: var(--ink); font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; }
+.summary-total .row.tot .v { font-family: "Cormorant Garamond", serif; font-size: 32px; font-weight: 600; color: var(--accent); letter-spacing: -.01em; line-height: 1; }
+.summary-total .row.tot .v .cur { font-size: 14px; color: var(--ink-mute); margin-right: 3px; font-weight: 500; }
+
+.book-cta {
+  width: 100%; margin-top: 18px;
+  background: var(--accent); color: var(--accent-ink);
+  padding: 16px; border-radius: 10px;
+  font-weight: 600; font-size: 14.5px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.book-cta:hover { background: var(--hl); }
+.book-cta:disabled { opacity: .4; cursor: not-allowed; }
+
+.cta-tip {
+  margin-top: 12px;
+  font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 13px;
+  color: var(--ink-mute); text-align: center;
+}
+
+.wa-direct {
+  margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--rule);
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(0,0,0,.15); padding: 14px; border-radius: 8px;
+}
+.wa-direct .ic { width: 32px; height: 32px; border-radius: 50%; background: var(--ok); color: white; display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.wa-direct .info { flex: 1; }
+.wa-direct .info .t { font-size: 12.5px; font-weight: 500; }
+.wa-direct .info .s { font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
+
+/* === FOOTER === */
+footer.public-foot {
+  border-top: 1px solid var(--rule);
+  padding: 28px 0; background: var(--bg-soft);
+}
+.foot-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; color: var(--ink-mute); text-transform: uppercase; }
+.foot-inner a { color: var(--ink-soft); }
+.foot-inner a:hover { color: var(--accent); }
+
+.skip-link { position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: 4px; z-index: 100; font-weight: 600; }
+.skip-link:focus { left: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+@media (max-width: 1080px) {
+  .book-grid { grid-template-columns: 1fr; }
+  .summary-side { position: static; }
+  .barber-row { grid-template-columns: repeat(2, 1fr); }
+  .cal-times { grid-template-columns: 1fr; }
+  .photo-strip { grid-template-columns: 1fr 1fr; grid-template-rows: 200px 120px 120px; }
+  .photo-strip .p1 { grid-column: 1 / 3; grid-row: 1; }
+}
+</style>
+</head>
+<body data-theme="classico">
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<header class="public-bar">
+  <div class="wrap public-bar-inner">
+    <div class="pb-left">
+      <div class="mini-mark" aria-hidden="true">N</div>
+      <span class="powered">Powered by <b>Navalha</b></span>
+    </div>
+    <div class="pb-right">
+      <span class="lang-pill">PT-BR</span>
+      <div class="theme-dots" role="group" aria-label="Tema">
+        <button class="theme-dot" data-theme-btn="classico" aria-pressed="true" aria-label="Clássico"><span class="sw" style="background: #C9A35E"></span></button>
+        <button class="theme-dot" data-theme-btn="moderno" aria-pressed="false" aria-label="Moderno"><span class="sw" style="background: #00C896"></span></button>
+        <button class="theme-dot" data-theme-btn="terra" aria-pressed="false" aria-label="Terra"><span class="sw" style="background: #2A4A3B"></span></button>
+      </div>
+      <a href="index.html" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--ink-mute); text-transform: uppercase; padding: 7px 12px; border: 1px solid var(--rule); border-radius: 999px;">← Brand</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="shop-hero">
+  <div class="wrap">
+    <div class="shop-hd">
+      <div>
+        <div class="crumb"><a href="landing.html">Navalha</a> · Marketplace · <a href="#">São Paulo</a> · Vila Madalena</div>
+        <h1>Tonsor <span class="it">Barber</span></h1>
+        <div class="shop-meta">
+          <span class="item"><span class="star">★ 4.9</span> · 248 avaliações</span>
+          <span class="dot">·</span>
+          <span class="item">📍 Rua Aspicuelta, 142 · Vila Madalena, SP</span>
+          <span class="dot">·</span>
+          <span class="item">Aberta agora · fecha 22h</span>
+          <span class="dot">·</span>
+          <span class="item">4 barbeiros · 4 cadeiras</span>
+        </div>
+      </div>
+      <div class="shop-actions">
+        <button class="save">♡ Salvar</button>
+        <button class="share">↗ Compartilhar</button>
+      </div>
+    </div>
+
+    <div class="photo-strip">
+      <div class="photo p1"><span class="photo-tag">FACHADA · INTERIOR</span></div>
+      <div class="photo p2"><span class="photo-tag">CADEIRA 01</span></div>
+      <div class="photo p3"><span class="photo-tag">PORTFOLIO</span></div>
+      <div class="photo p4"><span class="photo-tag">ESPERA</span></div>
+      <div class="photo p5"><span class="photo-tag">PRODUTOS</span><span class="more">+ 24 fotos</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK -->
+<section class="wrap">
+  <div class="book-grid">
+
+    <!-- LEFT: STEPS -->
+    <div class="col-main">
+
+      <!-- Step 1: Service -->
+      <div class="book-section done">
+        <div class="sec-hd">
+          <div class="num"><span>1</span></div>
+          <h2>Escolha o <span class="it">serviço</span></h2>
+          <span class="selected-tag">Corte + Barba · 30min</span>
+        </div>
+        <div class="svc-list">
+          <div class="svc-row">
+            <div>
+              <div class="nm">Corte simples</div>
+              <div class="desc">Máquina + tesoura. Acabamento na navalha. Inclui lavagem e finalização com óleo.</div>
+            </div>
+            <span class="dur">30 min</span>
+            <span class="pr"><span class="cur">R$</span>50</span>
+          </div>
+          <div class="svc-row selected">
+            <div>
+              <div class="nm">Corte + Barba</div>
+              <div class="desc">Combo completo. Corte + barba alinhada com navalha + toalha quente + óleo de finalização.</div>
+            </div>
+            <span class="dur">45 min</span>
+            <span class="pr"><span class="cur">R$</span>80</span>
+          </div>
+          <div class="svc-row">
+            <div>
+              <div class="nm">Visagismo</div>
+              <div class="desc">Consultoria de estilo + corte personalizado. Análise do formato do rosto e estilo de vida.</div>
+            </div>
+            <span class="dur">60 min</span>
+            <span class="pr"><span class="cur">R$</span>110</span>
+          </div>
+          <div class="svc-row">
+            <div>
+              <div class="nm">Barba completa</div>
+              <div class="desc">Alinhamento com navalha. Toalha quente, óleo essencial, massagem facial.</div>
+            </div>
+            <span class="dur">30 min</span>
+            <span class="pr"><span class="cur">R$</span>40</span>
+          </div>
+          <div class="svc-row">
+            <div>
+              <div class="nm">Sobrancelha</div>
+              <div class="desc">Design masculino · navalha ou pinça. Limpeza completa.</div>
+            </div>
+            <span class="dur">15 min</span>
+            <span class="pr"><span class="cur">R$</span>20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Barber -->
+      <div class="book-section done">
+        <div class="sec-hd">
+          <div class="num"><span>2</span></div>
+          <h2>Com qual <span class="it">barbeiro</span>?</h2>
+          <span class="selected-tag">Rafael Santos · 4.9★</span>
+        </div>
+        <div class="barber-row">
+          <div class="barber-card any">
+            <div class="av">?</div>
+            <div class="nm">Qualquer um</div>
+            <div class="role">Mais rápido</div>
+            <div class="star">primeiro disponível</div>
+          </div>
+          <div class="barber-card selected">
+            <div class="av">R</div>
+            <div class="nm">Rafael Santos</div>
+            <div class="role">Master · 12 anos</div>
+            <div class="star">★ 4.9 · 142 cortes/mês</div>
+          </div>
+          <div class="barber-card">
+            <div class="av" style="background: linear-gradient(135deg, var(--ok), color-mix(in oklab, var(--ok) 60%, var(--accent)));">B</div>
+            <div class="nm">Bruno Mello</div>
+            <div class="role">Senior · 8 anos</div>
+            <div class="star">★ 4.8 · 118 cortes/mês</div>
+          </div>
+          <div class="barber-card">
+            <div class="av" style="background: linear-gradient(135deg, #b07b3c, var(--accent-soft));">D</div>
+            <div class="nm">Diego Pacheco</div>
+            <div class="role">Pleno · 5 anos</div>
+            <div class="star">★ 4.7 · 96 cortes/mês</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Date + Time -->
+      <div class="book-section">
+        <div class="sec-hd">
+          <div class="num"><span>3</span></div>
+          <h2>Data e <span class="it">horário</span></h2>
+          <span class="selected-tag" style="color: var(--ink-mute);">Selecione abaixo</span>
+        </div>
+
+        <div class="cal-times">
+          <div class="cal-card">
+            <div class="cal-hd">
+              <div class="mo">Outubro <span style="color: var(--ink-mute); font-weight: 400; font-size: 14px;">2026</span></div>
+              <div class="ar"><button>‹</button><button>›</button></div>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-dow">D</div><div class="cal-dow">S</div><div class="cal-dow">T</div><div class="cal-dow">Q</div><div class="cal-dow">Q</div><div class="cal-dow">S</div><div class="cal-dow">S</div>
+              <div class="cal-day muted">28</div><div class="cal-day muted">29</div><div class="cal-day muted">30</div><div class="cal-day muted">1</div><div class="cal-day muted">2</div><div class="cal-day muted">3</div><div class="cal-day muted">4</div>
+              <div class="cal-day muted">5</div><div class="cal-day muted">6</div><div class="cal-day muted">7</div><div class="cal-day muted">8</div><div class="cal-day muted">9</div><div class="cal-day muted">10</div><div class="cal-day muted">11</div>
+              <div class="cal-day muted">12</div><div class="cal-day muted">13</div><div class="cal-day muted">14</div><div class="cal-day muted">15</div><div class="cal-day muted">16</div><div class="cal-day muted">17</div><div class="cal-day muted">18</div>
+              <div class="cal-day muted">19</div><div class="cal-day muted">20</div><div class="cal-day full">21</div><div class="cal-day full selected">22</div><div class="cal-day full">23</div><div class="cal-day full">24</div><div class="cal-day full">25</div>
+              <div class="cal-day">26</div><div class="cal-day full">27</div><div class="cal-day full">28</div><div class="cal-day full">29</div><div class="cal-day full">30</div><div class="cal-day full">31</div><div class="cal-day muted">1</div>
+            </div>
+          </div>
+
+          <div class="times-card">
+            <div class="times-hd">
+              <div class="t">Sex · 22 out · com Rafael</div>
+              <span class="lbl">★ recomendado pela IA</span>
+            </div>
+            <div class="times-group">
+              <div class="gl">Manhã <span style="color: var(--ink-soft);">· 4 livres</span></div>
+              <div class="times-grid">
+                <div class="time-slot taken">09:00</div>
+                <div class="time-slot">09:30</div>
+                <div class="time-slot taken">10:00</div>
+                <div class="time-slot">10:30</div>
+                <div class="time-slot">11:00</div>
+                <div class="time-slot rec">11:30</div>
+                <div class="time-slot taken">12:00</div>
+                <div class="time-slot">12:30</div>
+                <div class="time-slot taken">13:00</div>
+                <div class="time-slot rec">13:30</div>
+              </div>
+            </div>
+            <div class="times-group">
+              <div class="gl">Tarde <span style="color: var(--ink-soft);">· 3 livres</span></div>
+              <div class="times-grid">
+                <div class="time-slot taken">14:00</div>
+                <div class="time-slot selected">14:30</div>
+                <div class="time-slot taken">15:00</div>
+                <div class="time-slot">15:30</div>
+                <div class="time-slot">16:00</div>
+                <div class="time-slot">16:30</div>
+                <div class="time-slot taken">17:00</div>
+                <div class="time-slot taken">17:30</div>
+                <div class="time-slot taken">18:00</div>
+                <div class="time-slot taken">18:30</div>
+              </div>
+            </div>
+            <div class="times-group">
+              <div class="gl">Noite <span style="color: var(--ink-soft);">· 4 livres</span></div>
+              <div class="times-grid">
+                <div class="time-slot">19:00</div>
+                <div class="time-slot">19:30</div>
+                <div class="time-slot taken">20:00</div>
+                <div class="time-slot">20:30</div>
+                <div class="time-slot">21:00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Confirm -->
+      <div class="book-section">
+        <div class="sec-hd">
+          <div class="num"><span>4</span></div>
+          <h2>Seu <span class="it">contato</span></h2>
+          <span class="selected-tag" style="color: var(--ink-mute);">Para confirmar via WhatsApp</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 6px;">Nome</label>
+            <input type="text" placeholder="Seu nome" value="Ricardo Albuquerque" style="width: 100%; background: var(--bg-soft); border: 1px solid var(--rule); color: var(--ink); padding: 12px 14px; border-radius: 8px; font: inherit; font-size: 14px;" />
+          </div>
+          <div>
+            <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 6px;">WhatsApp</label>
+            <input type="tel" placeholder="(11) 99000-0000" value="(11) 98123-4567" style="width: 100%; background: var(--bg-soft); border: 1px solid var(--rule); color: var(--ink); padding: 12px 14px; border-radius: 8px; font: inherit; font-size: 14px;" />
+          </div>
+        </div>
+        <div style="margin-top: 12px;">
+          <label style="display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; margin-bottom: 6px;">Observação (opcional)</label>
+          <textarea placeholder="Ex: gosto da máquina 1 nas laterais…" rows="2" style="width: 100%; background: var(--bg-soft); border: 1px solid var(--rule); color: var(--ink); padding: 12px 14px; border-radius: 8px; font: inherit; font-size: 14px; resize: vertical;"></textarea>
+        </div>
+        <div style="margin-top: 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-soft);">
+          <input type="checkbox" id="terms" checked style="accent-color: var(--accent); width: 16px; height: 16px;" />
+          <label for="terms">Concordo com os <a href="#" style="color: var(--accent);">termos</a> e em receber lembretes pelo WhatsApp.</label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: SUMMARY -->
+    <aside class="summary-side">
+      <div class="summary-card">
+        <div class="sh-hd">
+          <div class="t">Resumo</div>
+          <span class="price-preview">R$ 80 · 30min</span>
+        </div>
+        <div class="summary-rows">
+          <div class="sm-row done">
+            <div class="ic"><span>S</span></div>
+            <div class="body">
+              <div class="l">Serviço</div>
+              <div class="v">Corte + Barba</div>
+            </div>
+          </div>
+          <div class="sm-row done">
+            <div class="ic"><span>B</span></div>
+            <div class="body">
+              <div class="l">Barbeiro</div>
+              <div class="v">Rafael Santos</div>
+            </div>
+          </div>
+          <div class="sm-row done">
+            <div class="ic"><span>D</span></div>
+            <div class="body">
+              <div class="l">Quando</div>
+              <div class="v">Sex 22/OUT · 14:30</div>
+            </div>
+          </div>
+          <div class="sm-row done">
+            <div class="ic"><span>O</span></div>
+            <div class="body">
+              <div class="l">Onde</div>
+              <div class="v">Tonsor · Vila Mad.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-total">
+          <div class="row"><span class="k">Serviço</span><span>R$ 80,00</span></div>
+          <div class="row"><span class="k">Taxa Navalha</span><span style="color: var(--ok);">R$ 0,00</span></div>
+          <div class="row tot"><span class="k">Total</span><span class="v"><span class="cur">R$</span>80<span style="font-size: 14px; color: var(--ink-mute);">,00</span></span></div>
+        </div>
+
+        <button class="book-cta">Confirmar agendamento →</button>
+        <p class="cta-tip">Sem cobrança agora. Pague no salão.</p>
+
+        <div class="wa-direct">
+          <div class="ic">W</div>
+          <div class="info">
+            <div class="t">Ou agende direto pelo WhatsApp</div>
+            <div class="s">+55 11 99000-0142 · resposta em ~2min</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="public-foot">
+  <div class="wrap foot-inner">
+    <span>© Tonsor Barber 2026 · CNPJ 00.000.000/0001-00</span>
+    <span style="display: flex; gap: 20px;"><a href="#">Termos</a><a href="#">Privacidade</a><a href="landing.html">Navalha · Para barbearias</a></span>
+  </div>
+</footer>
+
+<script>
+const THEMES = ['classico', 'moderno', 'terra'];
+function applyTheme(name) {
+  document.body.setAttribute('data-theme', name);
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === name ? 'true' : 'false'));
+  try { localStorage.setItem('navalha-theme', name); } catch(e) {}
+}
+document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeBtn)));
+try { const s = localStorage.getItem('navalha-theme'); if (s && THEMES.includes(s)) applyTheme(s); else applyTheme('classico'); } catch(e) { applyTheme('classico'); }
+
+// Service select
+document.querySelectorAll('.svc-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('.svc-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+  });
+});
+
+// Barber select
+document.querySelectorAll('.barber-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  });
+});
+
+// Calendar day
+document.querySelectorAll('.cal-day:not(.muted)').forEach(day => {
+  day.addEventListener('click', () => {
+    document.querySelectorAll('.cal-day.selected').forEach(d => d.classList.remove('selected'));
+    day.classList.add('selected');
+  });
+});
+
+// Time slot
+document.querySelectorAll('.time-slot:not(.taken)').forEach(s => {
+  s.addEventListener('click', () => {
+    document.querySelectorAll('.time-slot.selected').forEach(x => x.classList.remove('selected'));
+    s.classList.add('selected');
+  });
+});
+</script>
+
+</body>
+</html>

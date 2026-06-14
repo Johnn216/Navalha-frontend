@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme="classico"] {
+  --bg: #0f0d0a;
+  --bg-soft: #15120e;
+  --bg-elev: #1c1813;
+  --bg-card: #1c1813;
+  --ink: #f2ebdc;
+  --ink-soft: #c9c0ac;
+  --ink-mute: #8a8170;
+  --rule: #2a241b;
+  --accent: #c9a35e;
+  --accent-soft: #8c6f3a;
+  --accent-ink: #0f0d0a;
+  --hl: #e8c97a;
+  --danger: #c9533e;
+  --ok: #7ba776;
+  --warn: #d4a843;
+}
+
+[data-theme="moderno"] {
+  --bg: #0b1116;
+  --bg-soft: #11181f;
+  --bg-elev: #182028;
+  --bg-card: #182028;
+  --ink: #ecf1f4;
+  --ink-soft: #b6c2cb;
+  --ink-mute: #6e7c86;
+  --rule: #1f2a33;
+  --accent: #00c896;
+  --accent-soft: #027e60;
+  --accent-ink: #08110d;
+  --hl: #2de3b1;
+  --danger: #c9533e;
+  --ok: #7ba776;
+  --warn: #d4a843;
+}
+
+[data-theme="terra"] {
+  --bg: #f1ece3;
+  --bg-soft: #e8e1d2;
+  --bg-elev: #ffffff;
+  --bg-card: #ffffff;
+  --ink: #1a1614;
+  --ink-soft: #4a413a;
+  --ink-mute: #7a6f62;
+  --rule: #d5ccb9;
+  --accent: #2a4a3b;
+  --accent-soft: #8b5a2b;
+  --accent-ink: #f1ece3;
+  --hl: #c46a2a;
+  --danger: #c9533e;
+  --ok: #7ba776;
+  --warn: #d4a843;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .barber-pole {
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent) 0 8px,
+      var(--danger) 8px 16px,
+      var(--ink) 16px 24px
+    );
+    animation: pole 8s linear infinite;
+  }
+
+  .marble-bg {
+    background-image: radial-gradient(
+        ellipse at 20% 50%,
+        color-mix(in oklab, var(--accent) 8%, transparent) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at 80% 20%,
+        color-mix(in oklab, var(--hl) 6%, transparent) 0%,
+        transparent 40%
+      );
+  }
+
+  .ticket-notch {
+    position: relative;
+  }
+
+  .ticket-notch::before,
+  .ticket-notch::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--bg);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .ticket-notch::before {
+    left: -6px;
+  }
+
+  .ticket-notch::after {
+    right: -6px;
+  }
+}
+
+@keyframes pole {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barber-pole {
+    animation: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink;
+}
