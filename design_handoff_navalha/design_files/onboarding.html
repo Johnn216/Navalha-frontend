@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Navalha — Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #0F0D0A; --bg-soft: #15120E; --bg-elev: #1C1813;
+  --ink: #F2EBDC; --ink-soft: #C9C0AC; --ink-mute: #8A8170;
+  --rule: #2A241B;
+  --accent: #C9A35E; --accent-soft: #8C6F3A; --accent-ink: #0F0D0A; --hl: #E8C97A;
+  --ok: #7BA776; --danger: #C9533E;
+}
+[data-theme="moderno"] { --bg:#0B1116; --bg-soft:#11181F; --bg-elev:#182028; --ink:#ECF1F4; --ink-soft:#B6C2CB; --ink-mute:#6E7C86; --rule:#1F2A33; --accent:#00C896; --accent-soft:#027E60; --accent-ink:#08110D; --hl:#2DE3B1; }
+[data-theme="terra"] { --bg:#F1ECE3; --bg-soft:#E8E1D2; --bg-elev:#FFFFFF; --ink:#1A1614; --ink-soft:#4A413A; --ink-mute:#7A6F62; --rule:#D5CCB9; --accent:#2A4A3B; --accent-soft:#8B5A2B; --accent-ink:#F1ECE3; --hl:#C46A2A; --ok:#3D6B4E; --danger:#A8442E; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+.serif { font-family: "Cormorant Garamond", serif; }
+.mono { font-family: "JetBrains Mono", monospace; }
+.tnum { font-variant-numeric: tabular-nums; }
+button { font: inherit; cursor: pointer; border: none; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+.layout { display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+
+/* === STEPPER PANEL === */
+.stepper {
+  background: var(--bg-soft);
+  border-right: 1px solid var(--rule);
+  padding: 32px 28px;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+}
+.brand {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 36px;
+}
+.brand .mini-mark { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--accent); display: grid; place-items: center; color: var(--accent); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 24px; }
+.brand .word { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 22px; letter-spacing: .14em; }
+.brand .sub { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; margin-top: -2px; }
+
+.onb-title { margin-bottom: 28px; }
+.onb-title .ovr { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; color: var(--accent); text-transform: uppercase; }
+.onb-title h1 { font-family: "Cormorant Garamond", serif; font-size: 32px; font-weight: 500; line-height: 1.05; margin: 8px 0 0; letter-spacing: -.01em; }
+.onb-title h1 .it { font-style: italic; color: var(--accent); }
+
+.steps { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.step {
+  display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center;
+  padding: 12px 14px; border-radius: 8px; cursor: pointer;
+  position: relative;
+}
+.step + .step::before {
+  content: ""; position: absolute; left: 30px; top: -10px; width: 1px; height: 16px;
+  background: var(--rule);
+}
+.step.done + .step::before { background: var(--accent-soft); }
+.step:hover { background: var(--bg-elev); }
+.step .num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--rule); display: grid; place-items: center; font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 15px; font-weight: 600; color: var(--ink-mute); }
+.step.done .num { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-style: normal; }
+.step.done .num::after { content: "✓"; font-style: normal; font-family: "Bricolage Grotesque", sans-serif; }
+.step.done .num span { display: none; }
+.step.current .num { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent); }
+.step .body { min-width: 0; }
+.step .ttl { font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: 14px; line-height: 1.1; color: var(--ink-soft); }
+.step.current .ttl { color: var(--ink); }
+.step.done .ttl { color: var(--ink-soft); }
+.step .md { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .1em; color: var(--ink-mute); text-transform: uppercase; margin-top: 3px; }
+.step .time { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); }
+
+.stepper-foot {
+  border-top: 1px solid var(--rule); padding-top: 20px; margin-top: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.stepper-foot .help-link { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: 12px; flex: 1; }
+.stepper-foot .help-link .ic { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--rule); display: grid; place-items: center; font-family: "JetBrains Mono", monospace; }
+.stepper-foot .save-tag { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; color: var(--ok); text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; }
+.stepper-foot .save-tag .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+
+/* === CONTENT === */
+.content {
+  padding: 56px 64px;
+  max-width: 920px;
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+.content-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; gap: 24px; }
+.content-head .left .crumb { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; color: var(--accent); text-transform: uppercase; }
+.content-head h2 { font-family: "Cormorant Garamond", serif; font-size: 64px; font-weight: 500; line-height: .95; margin: 10px 0 12px; letter-spacing: -.01em; }
+.content-head h2 .it { font-style: italic; color: var(--accent); }
+.content-head .lead { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 20px; line-height: 1.4; color: var(--ink-soft); max-width: 520px; margin: 0; }
+
+.content-tools { display: flex; align-items: center; gap: 10px; }
+.theme-dots { display: flex; gap: 4px; padding: 4px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 999px; }
+.theme-dots button { width: 18px; height: 18px; border-radius: 50%; background: transparent; border: none; padding: 0; cursor: pointer; display: grid; place-items: center; }
+.theme-dots button[aria-pressed="true"] .sw { box-shadow: 0 0 0 2px var(--accent); }
+.theme-dots button .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
+
+/* === Service editor (current step) === */
+.import-banner {
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 10%, var(--bg-soft)), var(--bg-soft));
+  border: 1px dashed var(--accent-soft);
+  border-radius: 10px; padding: 18px 22px;
+  margin-bottom: 24px;
+}
+.import-banner .ic { width: 40px; height: 40px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 18px; font-weight: 600; flex-shrink: 0; }
+.import-banner .info { flex: 1; }
+.import-banner .info .t { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; line-height: 1.1; }
+.import-banner .info .s { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+.import-banner .actions { display: flex; gap: 8px; }
+.import-banner button { padding: 9px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 500; }
+.import-banner button.primary { background: var(--accent); color: var(--accent-ink); }
+.import-banner button.ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--rule); }
+
+.service-grid { display: grid; gap: 8px; }
+.service-card {
+  display: grid; grid-template-columns: 28px 1fr 100px 90px 60px 36px; gap: 16px;
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 14px 16px; align-items: center;
+}
+.service-card .toggle {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid var(--rule); background: var(--bg);
+  position: relative; cursor: pointer;
+}
+.service-card .toggle.on { background: var(--accent); border-color: var(--accent); }
+.service-card .toggle.on::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent-ink); font-size: 12px; font-weight: 600; }
+.service-card .nm { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; line-height: 1.1; }
+.service-card .md { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .1em; color: var(--ink-mute); margin-top: 4px; text-transform: uppercase; }
+.service-card input[type="text"], .service-card input[type="number"] {
+  background: var(--bg); border: 1px solid var(--rule);
+  color: var(--ink); font: inherit; font-size: 13px;
+  padding: 7px 10px; border-radius: 5px; width: 100%;
+}
+.service-card input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.service-card .price-input { display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--rule); border-radius: 5px; padding: 0 8px; }
+.service-card .price-input span { color: var(--ink-mute); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+.service-card .price-input input { border: none; padding-left: 0; }
+.service-card .dur-input { display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--rule); border-radius: 5px; padding: 0 8px; }
+.service-card .dur-input span { color: var(--ink-mute); font-family: "JetBrains Mono", monospace; font-size: 10px; }
+.service-card .dur-input input { border: none; padding-left: 0; }
+.service-card .commission { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-soft); text-align: center; padding: 6px; background: var(--bg); border-radius: 5px; border: 1px solid var(--rule); }
+.service-card .rm-btn { width: 28px; height: 28px; border-radius: 50%; background: transparent; color: var(--ink-mute); border: 1px solid var(--rule); display: grid; place-items: center; }
+.service-card .rm-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+.service-grid-head {
+  display: grid; grid-template-columns: 28px 1fr 100px 90px 60px 36px; gap: 16px;
+  padding: 0 16px 8px; align-items: center;
+}
+.service-grid-head .h { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; }
+
+.add-svc-btn {
+  margin-top: 10px; padding: 14px;
+  background: transparent; color: var(--accent);
+  border: 1.5px dashed var(--accent-soft);
+  border-radius: 8px;
+  font-family: "Bricolage Grotesque", sans-serif; font-size: 13px; font-weight: 500;
+  text-align: center; cursor: pointer; width: 100%;
+}
+.add-svc-btn:hover { background: color-mix(in oklab, var(--accent) 6%, transparent); border-color: var(--accent); }
+
+/* === Summary side panel (sticky inside content) === */
+.right-rail {
+  position: sticky; bottom: 24px;
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 20px 24px;
+  margin-top: 40px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 20px; align-items: center;
+}
+.right-rail .stat .l { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; }
+.right-rail .stat .v { font-family: "Cormorant Garamond", serif; font-size: 30px; font-weight: 500; line-height: 1; margin-top: 6px; letter-spacing: -.01em; }
+.right-rail .stat .v .sm { font-size: 16px; color: var(--ink-mute); margin-right: 3px; }
+
+.nav-buttons { display: flex; gap: 10px; align-items: center; }
+.nav-buttons button { padding: 14px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: "Bricolage Grotesque", sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+.nav-buttons .back { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--rule); }
+.nav-buttons .back:hover { color: var(--ink); border-color: var(--accent); }
+.nav-buttons .next { background: var(--accent); color: var(--accent-ink); padding: 14px 28px; box-shadow: 0 0 0 0 var(--accent); }
+.nav-buttons .next:hover { background: var(--hl); }
+.nav-buttons .next .kb { font-family: "JetBrains Mono", monospace; font-size: 10px; padding: 2px 5px; border: 1px solid currentColor; border-radius: 3px; opacity: .6; }
+
+/* Tip card */
+.tip {
+  background: var(--bg-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+  padding: 16px 20px; margin-top: 24px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.tip .ic { font-family: "Cormorant Garamond", serif; font-style: italic; color: var(--accent); font-size: 22px; line-height: 1; flex-shrink: 0; }
+.tip .body { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+.tip .body strong { color: var(--ink); font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 600; font-size: 15px; display: block; margin-bottom: 3px; }
+
+.skip-link { position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: 4px; z-index: 100; font-weight: 600; }
+.skip-link:focus { left: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  .stepper { position: static; height: auto; }
+  .steps { flex-direction: row; overflow-x: auto; }
+  .step { flex: 1; min-width: 200px; }
+  .content { padding: 32px 24px; }
+  .content-head { flex-direction: column; align-items: flex-start; }
+  .service-card { grid-template-columns: 28px 1fr; gap: 8px; }
+  .service-card > *:not(.toggle):not(:nth-child(2)) { grid-column: 2; }
+  .service-grid-head { display: none; }
+  .right-rail { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-theme="classico">
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<div class="layout">
+
+  <aside class="stepper" aria-label="Progresso do onboarding">
+    <div class="brand">
+      <div class="mini-mark" aria-hidden="true">N</div>
+      <div>
+        <div class="word">NAVALHA</div>
+        <div class="sub">Onboarding · 5/14 dias grátis</div>
+      </div>
+    </div>
+
+    <div class="onb-title">
+      <div class="ovr">Setup da barbearia</div>
+      <h1>Vamos <span class="it">afiar</span> tudo.</h1>
+    </div>
+
+    <ol class="steps" role="list">
+      <li class="step done">
+        <div class="num"><span>1</span></div>
+        <div class="body">
+          <div class="ttl">Boas-vindas</div>
+          <div class="md">Conta criada</div>
+        </div>
+        <span class="time">2min</span>
+      </li>
+      <li class="step done">
+        <div class="num"><span>2</span></div>
+        <div class="body">
+          <div class="ttl">Sua barbearia</div>
+          <div class="md">Tonsor · SP</div>
+        </div>
+        <span class="time">3min</span>
+      </li>
+      <li class="step current" aria-current="step">
+        <div class="num"><span>3</span></div>
+        <div class="body">
+          <div class="ttl">Serviços e preços</div>
+          <div class="md">Em andamento</div>
+        </div>
+        <span class="time">5min</span>
+      </li>
+      <li class="step">
+        <div class="num"><span>4</span></div>
+        <div class="body">
+          <div class="ttl">Equipe</div>
+          <div class="md">Barbeiros · comissão</div>
+        </div>
+        <span class="time">4min</span>
+      </li>
+      <li class="step">
+        <div class="num"><span>5</span></div>
+        <div class="body">
+          <div class="ttl">Horários</div>
+          <div class="md">Funcionamento</div>
+        </div>
+        <span class="time">2min</span>
+      </li>
+      <li class="step">
+        <div class="num"><span>6</span></div>
+        <div class="body">
+          <div class="ttl">Concluído</div>
+          <div class="md">Receba o link</div>
+        </div>
+        <span class="time">1min</span>
+      </li>
+    </ol>
+
+    <div class="stepper-foot">
+      <a href="#" class="help-link">
+        <span class="ic">?</span>
+        <span>Falar com<br/>especialista</span>
+      </a>
+      <span class="save-tag"><span class="pulse"></span> Salvo</span>
+    </div>
+  </aside>
+
+  <main class="content" id="main">
+    <div class="content-head">
+      <div class="left">
+        <div class="crumb">§ Passo 3 de 6 · Serviços</div>
+        <h2>Quais <span class="it">serviços</span> você oferece?</h2>
+        <p class="lead">Selecione os serviços, ajuste preços e duração. Você pode editar tudo depois — isso é só o começo.</p>
+      </div>
+      <div class="content-tools">
+        <div class="theme-dots" role="group" aria-label="Tema visual">
+          <button class="theme-dot" data-theme-btn="classico" aria-pressed="true" aria-label="Clássico"><span class="sw" style="background: #C9A35E"></span></button>
+          <button class="theme-dot" data-theme-btn="moderno" aria-pressed="false" aria-label="Moderno"><span class="sw" style="background: #00C896"></span></button>
+          <button class="theme-dot" data-theme-btn="terra" aria-pressed="false" aria-label="Terra"><span class="sw" style="background: #2A4A3B"></span></button>
+        </div>
+        <a href="index.html" style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; padding: 8px 14px; border: 1px solid var(--rule); border-radius: 999px;">← Brand</a>
+      </div>
+    </div>
+
+    <div class="import-banner">
+      <div class="ic">★</div>
+      <div class="info">
+        <div class="t">Importar do Trinks, Booksy ou planilha?</div>
+        <div class="s">Em 30 segundos a gente puxa seus serviços, clientes e histórico — sem você precisar redigitar nada.</div>
+      </div>
+      <div class="actions">
+        <button class="primary">Importar</button>
+        <button class="ghost">Não, manual</button>
+      </div>
+    </div>
+
+    <div class="service-grid-head">
+      <div></div>
+      <div class="h">Serviço</div>
+      <div class="h">Preço</div>
+      <div class="h">Duração</div>
+      <div class="h">Comissão</div>
+      <div></div>
+    </div>
+
+    <div class="service-grid">
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Corte simples</div>
+          <div class="md">CORTE PADRÃO · MÁQUINA + TESOURA</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="50" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="30" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">60%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Corte + barba</div>
+          <div class="md">PACOTE · CORTE + BARBA COMPLETA</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="80" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="45" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">60%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Visagismo</div>
+          <div class="md">CONSULTORIA + CORTE PERSONALIZADO</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="110" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="60" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">65%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Barba completa</div>
+          <div class="md">ALINHAMENTO + ÓLEO + TOALHA QUENTE</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="40" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="30" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">60%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Sobrancelha</div>
+          <div class="md">DESIGN · NAVALHA OU PINÇA</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="20" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="15" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">50%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle" aria-pressed="false" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Coloração</div>
+          <div class="md">PINTURA · CABELO OU BARBA</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="80" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="45" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">55%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle" aria-pressed="false" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Hidratação</div>
+          <div class="md">TRATAMENTO CAPILAR</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="60" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="30" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">50%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+
+      <div class="service-card">
+        <button class="toggle on" aria-pressed="true" aria-label="Ativar serviço"></button>
+        <div>
+          <div class="nm">Corte infantil</div>
+          <div class="md">ATÉ 10 ANOS</div>
+        </div>
+        <div class="price-input"><span>R$</span><input type="number" value="40" aria-label="Preço" /></div>
+        <div class="dur-input"><input type="number" value="25" aria-label="Duração" /><span>min</span></div>
+        <div class="commission">60%</div>
+        <button class="rm-btn" aria-label="Remover">×</button>
+      </div>
+    </div>
+
+    <button class="add-svc-btn">+ Adicionar serviço personalizado</button>
+
+    <div class="tip">
+      <span class="ic">★</span>
+      <div class="body">
+        <strong>Dica do Navalha</strong>
+        Barbearias na sua região cobram em média <strong style="display: inline; color: var(--accent); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 13px;">R$ 75</strong> por Corte+Barba. Seu preço de <strong style="display: inline; color: var(--accent); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 13px;">R$ 80</strong> está bem posicionado.
+      </div>
+    </div>
+
+    <div class="right-rail">
+      <div class="stat">
+        <div class="l">Serviços ativos</div>
+        <div class="v tnum">6<span style="font-size: 16px; color: var(--ink-mute); font-style: italic; margin-left: 4px;">/8</span></div>
+      </div>
+      <div class="stat">
+        <div class="l">Ticket médio estimado</div>
+        <div class="v"><span class="sm">R$</span><span class="tnum">67</span></div>
+      </div>
+      <div class="stat">
+        <div class="l">Projeção mensal</div>
+        <div class="v"><span class="sm">R$</span><span class="tnum">38.6k</span></div>
+      </div>
+      <div class="nav-buttons">
+        <button class="back">← Voltar</button>
+        <button class="next">Continuar <span class="kb">⏎</span></button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const THEMES = ['classico', 'moderno', 'terra'];
+function applyTheme(name) {
+  document.body.setAttribute('data-theme', name);
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === name ? 'true' : 'false'));
+  try { localStorage.setItem('navalha-theme', name); } catch(e) {}
+}
+document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeBtn)));
+try { const s = localStorage.getItem('navalha-theme'); if (s && THEMES.includes(s)) applyTheme(s); else applyTheme('classico'); } catch(e) { applyTheme('classico'); }
+
+// Toggle services
+document.querySelectorAll('.toggle').forEach(t => {
+  t.addEventListener('click', () => {
+    t.classList.toggle('on');
+    const on = t.classList.contains('on');
+    t.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+});
+
+// Step navigation (visual demo)
+document.querySelectorAll('.next').forEach(b => b.addEventListener('click', () => {
+  alert('Próximo passo · simulação · em uma versão real iria para Equipe.');
+}));
+</script>
+
+</body>
+</html>

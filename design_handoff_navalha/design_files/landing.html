@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Navalha — O sistema operacional das barbearias.</title>
+<meta name="description" content="Navalha é o SaaS afiado para barbearias brasileiras. Do agendamento ao caixa, da comissão ao cliente fiel." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #0F0D0A; --bg-soft: #15120E; --bg-elev: #1C1813;
+  --ink: #F2EBDC; --ink-soft: #C9C0AC; --ink-mute: #8A8170;
+  --rule: #2A241B; --accent: #C9A35E; --accent-soft: #8C6F3A; --accent-ink: #0F0D0A; --hl: #E8C97A;
+  --ok: #7BA776; --danger: #C9533E;
+}
+[data-theme="moderno"] { --bg:#0B1116; --bg-soft:#11181F; --bg-elev:#182028; --ink:#ECF1F4; --ink-soft:#B6C2CB; --ink-mute:#6E7C86; --rule:#1F2A33; --accent:#00C896; --accent-soft:#027E60; --accent-ink:#08110D; --hl:#2DE3B1; }
+[data-theme="terra"] { --bg:#F1ECE3; --bg-soft:#E8E1D2; --bg-elev:#FFFFFF; --ink:#1A1614; --ink-soft:#4A413A; --ink-mute:#7A6F62; --rule:#D5CCB9; --accent:#2A4A3B; --accent-soft:#8B5A2B; --accent-ink:#F1ECE3; --hl:#C46A2A; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; transition: background .4s, color .4s; }
+.serif { font-family: "Cormorant Garamond", serif; }
+.mono { font-family: "JetBrains Mono", monospace; }
+.upper { text-transform: uppercase; letter-spacing: .18em; }
+.it { font-style: italic; }
+.tnum { font-variant-numeric: tabular-nums; }
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+/* === TOPBAR === */
+.topbar { position: sticky; top: 0; z-index: 50; background: color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--rule); }
+.topbar-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 14px 48px; gap: 24px; }
+.tb-left { display: flex; align-items: center; gap: 14px; }
+.tb-center { display: flex; align-items: center; gap: 4px; font-size: 12.5px; }
+.tb-right { display: flex; justify-content: flex-end; align-items: center; gap: 12px; font-size: 12px; }
+.tb-link { padding: 8px 12px; border-radius: 4px; text-decoration: none; color: var(--ink-soft); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; font-weight: 500; transition: color .2s, background .2s; }
+.tb-link:hover, .tb-link:focus-visible { color: var(--ink); background: var(--bg-soft); outline: none; }
+.tb-link[aria-current="page"] { color: var(--accent); }
+.mini-mark { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); display: grid; place-items: center; color: var(--accent); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; line-height: 1; }
+.brand-word { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 22px; letter-spacing: .16em; }
+
+.theme-dots { display: flex; gap: 6px; }
+.theme-dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--rule); display: grid; place-items: center; cursor: pointer; background: transparent; padding: 0; }
+.theme-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-dot[aria-pressed="true"] { border-color: var(--accent); }
+.theme-dot .swatch { width: 14px; height: 14px; border-radius: 50%; display: block; }
+
+.pole-stripe { height: 6px; width: 100%; background: repeating-linear-gradient(-45deg, var(--accent) 0 12px, var(--bg-soft) 12px 24px, var(--ink) 24px 36px, var(--bg-soft) 36px 48px); opacity: .85; animation: pole 14s linear infinite; background-size: 200% 100%; }
+@keyframes pole { to { background-position: 200% 0; } }
+
+.cta-top { background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 500; text-decoration: none; }
+.cta-top:hover { background: var(--hl); }
+
+/* === HERO === */
+.hero { padding: 80px 0 60px; position: relative; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 56px; align-items: center; }
+.eyebrow { display: inline-flex; align-items: center; gap: 12px; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: .22em; padding: 8px 14px; border: 1px solid var(--rule); border-radius: 999px; }
+.eyebrow .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent); }
+.hero-title { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: clamp(64px, 9vw, 132px); line-height: .88; letter-spacing: -.01em; margin: 28px 0 20px; }
+.hero-title .accent { color: var(--accent); font-style: italic; }
+.hero-sub { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 24px; line-height: 1.4; color: var(--ink-soft); max-width: 540px; margin: 0 0 32px; }
+.hero-cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 28px; }
+.btn { font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; padding: 14px 24px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; font-size: 14.5px; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; transition: transform .15s, background .2s, color .2s, border-color .2s; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--hl); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-lg { padding: 18px 28px; font-size: 15px; }
+
+.hero-trust { display: flex; gap: 18px; flex-wrap: wrap; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: .14em; align-items: center; }
+.hero-trust .dot { color: var(--accent); }
+
+/* Hero right: live ticket stack */
+.hero-stage { position: relative; aspect-ratio: 4/5; max-height: 640px; }
+.ticket {
+  position: absolute; left: 0; right: 0;
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 22px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.ticket-1 { top: 0; transform: rotate(-3deg); z-index: 3; box-shadow: 0 30px 80px -20px rgba(0,0,0,.6); }
+.ticket-2 { top: 28%; transform: rotate(2deg); z-index: 2; opacity: .9; }
+.ticket-3 { top: 56%; transform: rotate(-1.5deg); z-index: 1; opacity: .75; }
+.ticket-head { display: flex; justify-content: space-between; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); border-bottom: 1px dashed var(--rule); padding-bottom: 12px; }
+.ticket-head .badge-mini { color: var(--accent); border: 1px solid var(--accent); padding: 2px 8px; border-radius: 3px; }
+.ticket-row { display: flex; align-items: center; gap: 14px; }
+.ticket-time { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 600; color: var(--accent); line-height: 1; }
+.ticket-meta { flex: 1; }
+.ticket-meta .name { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1.1; }
+.ticket-meta .svc { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; color: var(--ink-mute); text-transform: uppercase; margin-top: 2px; }
+.ticket-foot { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+.ticket-foot .v { color: var(--accent); font-weight: 600; }
+
+.hero-watermark { position: absolute; right: -80px; bottom: -120px; font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 460px; line-height: 1; color: var(--accent); opacity: .04; pointer-events: none; z-index: 0; user-select: none; }
+
+/* === MARQUEE === */
+.marquee { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 22px 0; overflow: hidden; }
+.marquee-track { display: flex; gap: 60px; white-space: nowrap; animation: marq 30s linear infinite; align-items: center; }
+@keyframes marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-item { display: inline-flex; align-items: center; gap: 14px; font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); }
+.marquee-item .dia { color: var(--accent); font-size: 8px; }
+
+/* === STATS === */
+.stats { padding: 80px 0; border-bottom: 1px solid var(--rule); }
+.stats-head { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 18px; color: var(--ink-mute); text-align: center; margin-bottom: 48px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-left: 1px solid var(--rule); }
+.stat { padding: 32px 28px; border-right: 1px solid var(--rule); }
+.stat-num { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 76px; line-height: .9; letter-spacing: -.02em; }
+.stat-num .small { font-size: 36px; vertical-align: super; color: var(--accent); }
+.stat-num .suffix { font-size: 36px; }
+.stat-label { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); margin-top: 8px; }
+
+/* === SECTION HEAD shared === */
+.section { padding: 120px 0; border-bottom: 1px solid var(--rule); }
+.section-head { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; margin-bottom: 64px; align-items: end; }
+.section-num { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+.section-title { font-family: "Cormorant Garamond", serif; font-size: clamp(48px, 6vw, 80px); line-height: .96; font-weight: 500; margin: 12px 0 0; letter-spacing: -.01em; }
+.section-lead { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; line-height: 1.4; color: var(--ink-soft); max-width: 540px; }
+
+/* === HOW IT WORKS === */
+.how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.how-card { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 32px; display: flex; flex-direction: column; gap: 18px; min-height: 360px; position: relative; overflow: hidden; }
+.how-num { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 88px; color: var(--accent); line-height: 1; opacity: .9; }
+.how-title { font-family: "Cormorant Garamond", serif; font-size: 30px; font-weight: 600; line-height: 1.1; margin: 0; }
+.how-desc { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; margin: 0; }
+.how-detail { margin-top: auto; padding-top: 18px; border-top: 1px dashed var(--rule); font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); }
+.how-detail .v { color: var(--accent); }
+
+/* === FEATURES GRID === */
+.features-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(180px, auto); gap: 16px; }
+.feat { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; }
+.feat-hd { display: flex; align-items: center; gap: 10px; }
+.feat-glyph { width: 32px; height: 32px; border-radius: 6px; background: color-mix(in oklab, var(--accent) 14%, transparent); border: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); display: grid; place-items: center; font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 600; color: var(--accent); font-size: 18px; }
+.feat-label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.feat-title { font-family: "Cormorant Garamond", serif; font-size: 24px; font-weight: 600; line-height: 1.1; margin: 0; }
+.feat-desc { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; margin: 0; }
+.feat.big { grid-column: span 6; }
+.feat.mid { grid-column: span 4; }
+.feat.sm { grid-column: span 3; }
+.feat.full { grid-column: span 8; }
+
+/* feat visuals */
+.feat-visual { margin-top: auto; height: 80px; border-radius: 4px; position: relative; overflow: hidden; border: 1px solid var(--rule); background: var(--bg); display: flex; align-items: center; padding: 12px; gap: 8px; }
+.fv-chip { font-family: "JetBrains Mono", monospace; font-size: 10px; padding: 4px 8px; border-radius: 3px; background: var(--bg-elev); border: 1px solid var(--rule); white-space: nowrap; }
+.fv-chip.accent { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.fv-bars { display: flex; gap: 4px; align-items: flex-end; height: 100%; flex: 1; }
+.fv-bars .bar { flex: 1; background: var(--accent); border-radius: 2px; opacity: .8; }
+
+/* === ROLES TABS === */
+.roles-tabs { display: flex; gap: 6px; margin-bottom: 32px; flex-wrap: wrap; }
+.role-tab { font-family: "Bricolage Grotesque", sans-serif; padding: 10px 18px; background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 500; letter-spacing: .02em; transition: all .2s; }
+.role-tab:hover { border-color: var(--accent); color: var(--ink); }
+.role-tab[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.role-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.role-panel { display: none; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
+.role-panel.active { display: grid; }
+.role-panel h3 { font-family: "Cormorant Garamond", serif; font-size: 48px; font-weight: 500; line-height: 1; margin: 12px 0 16px; }
+.role-panel h3 .it { color: var(--accent); }
+.role-panel .role-lead { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 20px; color: var(--ink-soft); line-height: 1.4; margin: 0 0 24px; }
+.role-panel .role-bullets { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 14px; }
+.role-panel .role-bullets li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; font-size: 14.5px; line-height: 1.5; color: var(--ink-soft); }
+.role-panel .role-bullets .check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-size: 12px; }
+
+.role-mock {
+  background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; min-height: 460px;
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative; overflow: hidden;
+}
+.rm-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.rm-head .ttl { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1; }
+.rm-head .meta { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.rm-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rm-stat { padding: 14px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.rm-stat .v { font-family: "Cormorant Garamond", serif; font-size: 32px; font-weight: 600; line-height: 1; }
+.rm-stat .l { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); margin-top: 6px; }
+.rm-list { display: flex; flex-direction: column; gap: 8px; }
+.rm-item { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.rm-item .tm { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--accent); font-weight: 600; text-align: center; line-height: 1; }
+.rm-item .nm { font-family: "Cormorant Garamond", serif; font-size: 16px; font-weight: 600; line-height: 1.1; }
+.rm-item .sv { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); margin-top: 2px; }
+.rm-item .st { font-family: "JetBrains Mono", monospace; font-size: 10px; padding: 3px 7px; border-radius: 3px; border: 1px solid var(--accent); color: var(--accent); }
+.rm-item .st.ok { border-color: var(--ok); color: var(--ok); }
+.rm-chart { height: 100px; display: flex; align-items: flex-end; gap: 4px; padding: 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.rm-chart .bar { flex: 1; background: linear-gradient(to top, color-mix(in oklab, var(--accent) 80%, transparent), var(--accent)); border-radius: 2px 2px 0 0; min-height: 8px; }
+
+/* === TESTIMONIALS === */
+.testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.testi { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 28px; display: flex; flex-direction: column; gap: 18px; min-height: 320px; }
+.testi-quote { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; line-height: 1.35; margin: 0; }
+.testi-quote::before { content: """; font-size: 60px; color: var(--accent); line-height: 0; vertical-align: -.4em; margin-right: 4px; }
+.testi-foot { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 18px; border-top: 1px dashed var(--rule); }
+.testi-who { font-family: "Bricolage Grotesque", sans-serif; }
+.testi-who .nm { font-weight: 600; font-size: 14px; }
+.testi-who .rl { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); margin-top: 2px; }
+.testi-metric { font-family: "Cormorant Garamond", serif; font-style: italic; color: var(--accent); font-size: 14px; text-align: right; }
+.testi-metric .v { font-size: 26px; font-weight: 600; display: block; line-height: 1; font-style: normal; font-family: "Cormorant Garamond", serif; }
+
+/* === PRICING === */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.price { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 12px; padding: 36px 32px; display: flex; flex-direction: column; gap: 22px; position: relative; overflow: hidden; }
+.price.featured { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 6%, var(--bg-soft)); }
+.price.featured::before { content: "MAIS POPULAR"; position: absolute; top: 16px; right: 16px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .22em; padding: 4px 10px; background: var(--accent); color: var(--accent-ink); border-radius: 3px; }
+.price-name { font-family: "Cormorant Garamond", serif; font-size: 28px; font-weight: 600; line-height: 1; }
+.price-tag { display: flex; align-items: baseline; gap: 6px; }
+.price-tag .currency { font-family: "JetBrains Mono", monospace; font-size: 16px; color: var(--ink-mute); }
+.price-tag .amount { font-family: "Cormorant Garamond", serif; font-size: 72px; font-weight: 500; line-height: 1; letter-spacing: -.02em; }
+.price-tag .per { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); letter-spacing: .12em; text-transform: uppercase; }
+.price-desc { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 15px; color: var(--ink-soft); margin: 0; line-height: 1.4; }
+.price-feats { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.price-feats li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 13.5px; color: var(--ink-soft); align-items: start; }
+.price-feats li::before { content: "✓"; color: var(--accent); font-weight: 600; }
+.price-feats li.x { color: var(--ink-mute); }
+.price-feats li.x::before { content: "—"; color: var(--ink-mute); }
+.price-cta { margin-top: auto; }
+
+.price-toggle { display: inline-flex; gap: 2px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 999px; padding: 3px; margin-bottom: 48px; }
+.price-toggle button { background: transparent; border: none; padding: 8px 18px; border-radius: 999px; cursor: pointer; color: var(--ink-soft); font-family: inherit; font-size: 13px; }
+.price-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.price-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.price-toggle .save { background: color-mix(in oklab, var(--accent) 20%, transparent); color: var(--accent); padding: 2px 6px; border-radius: 3px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; margin-left: 6px; }
+
+/* === FAQ === */
+.faq-grid { display: grid; grid-template-columns: 1fr; gap: 0; max-width: 880px; }
+.faq-item { border-bottom: 1px solid var(--rule); }
+.faq-item summary { cursor: pointer; padding: 24px 0; display: flex; justify-content: space-between; align-items: center; gap: 24px; list-style: none; font-family: "Cormorant Garamond", serif; font-size: 26px; font-weight: 600; line-height: 1.2; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; font-family: "Cormorant Garamond", serif; font-size: 36px; color: var(--accent); flex-shrink: 0; line-height: 1; transition: transform .2s; }
+.faq-item[open] summary::after { content: "−"; }
+.faq-item summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.faq-answer { padding: 0 0 24px; color: var(--ink-soft); font-size: 15px; line-height: 1.65; max-width: 700px; }
+
+/* === FINAL CTA === */
+.final-cta { padding: 140px 0; text-align: center; position: relative; overflow: hidden; }
+.final-cta .bg-emblem { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 80vmin; color: var(--accent); opacity: .05; pointer-events: none; }
+.final-cta .eyebrow { margin-bottom: 32px; }
+.final-cta h2 { font-family: "Cormorant Garamond", serif; font-size: clamp(64px, 9vw, 132px); line-height: .88; font-weight: 500; margin: 0 0 24px; letter-spacing: -.01em; }
+.final-cta h2 .it { font-style: italic; color: var(--accent); }
+.final-cta p { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; color: var(--ink-soft); margin: 0 auto 36px; max-width: 600px; }
+
+/* === FOOTER === */
+footer { padding: 64px 0; background: var(--bg-soft); border-top: 1px solid var(--rule); }
+.foot-grid { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 32px; margin-bottom: 48px; }
+.foot-brand .brand-word { display: block; margin-bottom: 12px; }
+.foot-brand p { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 16px; color: var(--ink-soft); max-width: 280px; margin: 0; line-height: 1.4; }
+.foot-col h4 { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-mute); margin: 0 0 16px; }
+.foot-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.foot-col a { color: var(--ink-soft); text-decoration: none; font-size: 14px; }
+.foot-col a:hover { color: var(--accent); }
+.foot-bot { display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--rule); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-mute); }
+
+/* === ACCESSIBILITY === */
+.skip-link { position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: 4px; z-index: 100; font-weight: 600; }
+.skip-link:focus { left: 8px; }
+@media (prefers-reduced-motion: reduce) { .pole-stripe, .marquee-track { animation: none !important; } * { transition: none !important; } }
+
+@media (max-width: 1080px) {
+  .wrap { padding: 0 24px; }
+  .topbar-inner { padding: 12px 24px; grid-template-columns: auto auto; }
+  .tb-center { display: none; }
+  .hero-grid, .section-head, .how-grid, .role-panel.active, .testi-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-grid { grid-template-columns: repeat(6, 1fr); }
+  .feat.big, .feat.mid, .feat.sm, .feat.full { grid-column: span 6; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .hero-stage { aspect-ratio: 5/4; max-height: 500px; }
+  .hero-watermark { display: none; }
+}
+</style>
+</head>
+<body data-theme="classico">
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <a href="index.html" class="tb-left" style="text-decoration: none; color: inherit;">
+      <div class="mini-mark" aria-hidden="true">N</div>
+      <div>
+        <div class="brand-word">NAVALHA</div>
+        <div class="mono" style="font-size: 9px; letter-spacing: .22em; color: var(--ink-mute); text-transform: uppercase; margin-top: -2px;">Barber System</div>
+      </div>
+    </a>
+    <nav class="tb-center" aria-label="Navegação principal">
+      <a class="tb-link" href="index.html">Marca</a>
+      <a class="tb-link" href="landing.html" aria-current="page">Landing</a>
+      <a class="tb-link" href="dashboard.html">Dono</a>
+      <a class="tb-link" href="barbeiro.html">Barbeiro</a>
+      <a class="tb-link" href="secretaria.html">Secretária</a>
+      <a class="tb-link" href="cliente.html">Cliente</a>
+      <a class="tb-link" href="onboarding.html">Onboarding</a>
+      <a class="tb-link" href="agendamento.html">Agendar</a>
+    </nav>
+    <div class="tb-right">
+      <div class="theme-dots" role="group" aria-label="Trocar tema visual">
+        <button class="theme-dot" data-theme-btn="classico" aria-pressed="true" aria-label="Tema clássico"><span class="swatch" style="background: #C9A35E"></span></button>
+        <button class="theme-dot" data-theme-btn="moderno" aria-pressed="false" aria-label="Tema moderno"><span class="swatch" style="background: #00C896"></span></button>
+        <button class="theme-dot" data-theme-btn="terra" aria-pressed="false" aria-label="Tema terra"><span class="swatch" style="background: #2A4A3B"></span></button>
+      </div>
+      <a class="cta-top" href="onboarding.html">Começar agora →</a>
+    </div>
+  </div>
+  <div class="pole-stripe" aria-hidden="true"></div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div style="position: relative; z-index: 2;">
+        <span class="eyebrow"><span class="pip"></span> Novo · SaaS Brasileiro · 2026</span>
+        <h1 class="hero-title">Sua barbearia,<br/><span class="accent">afiada.</span></h1>
+        <p class="hero-sub">O sistema operacional das barbearias brasileiras — do agendamento pelo WhatsApp ao fechamento de caixa, da comissão automática ao clube de assinatura.</p>
+        <div class="hero-cta-row">
+          <a class="btn btn-primary btn-lg" href="onboarding.html">Testar grátis · 14 dias →</a>
+          <a class="btn btn-ghost btn-lg" href="dashboard.html">Ver demo ao vivo</a>
+        </div>
+        <div class="hero-trust">
+          <span><span class="dot">●</span> Setup em 5 min</span>
+          <span><span class="dot">●</span> Sem fidelidade</span>
+          <span><span class="dot">●</span> WhatsApp incluso</span>
+          <span><span class="dot">●</span> Suporte humano</span>
+        </div>
+      </div>
+      <div class="hero-stage" aria-hidden="true">
+        <div class="ticket ticket-3">
+          <div class="ticket-head"><span>#0144 · 16:00</span><span class="badge-mini">Aguardando</span></div>
+          <div class="ticket-row">
+            <div class="ticket-time">16:00</div>
+            <div class="ticket-meta"><div class="name">Lucas Andrade</div><div class="svc">Corte simples · 30min</div></div>
+          </div>
+          <div class="ticket-foot"><span>RAFAEL S.</span><span class="v">R$ 50,00</span></div>
+        </div>
+        <div class="ticket ticket-2">
+          <div class="ticket-head"><span>#0143 · 15:00</span><span class="badge-mini">Confirmado</span></div>
+          <div class="ticket-row">
+            <div class="ticket-time">15:00</div>
+            <div class="ticket-meta"><div class="name">João Marcelo</div><div class="svc">Visagismo + Sobrancelha · 45min</div></div>
+          </div>
+          <div class="ticket-foot"><span>BRUNO M.</span><span class="v">R$ 110,00</span></div>
+        </div>
+        <div class="ticket ticket-1">
+          <div class="ticket-head"><span>#0142 · AGORA</span><span class="badge-mini">Em atendimento</span></div>
+          <div class="ticket-row">
+            <div class="ticket-time">14:30</div>
+            <div class="ticket-meta"><div class="name">Ricardo Albuquerque</div><div class="svc">Corte degradê + Barba · 30min</div></div>
+          </div>
+          <div class="ticket-foot"><span>RAFAEL S.</span><span class="v">R$ 80,00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <span class="hero-watermark" aria-hidden="true">N</span>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Agenda inteligente <span class="dia">◆</span></span>
+    <span class="marquee-item">WhatsApp integrado <span class="dia">◆</span></span>
+    <span class="marquee-item">Comissão automática <span class="dia">◆</span></span>
+    <span class="marquee-item">Pix · Cartão · Dinheiro <span class="dia">◆</span></span>
+    <span class="marquee-item">Multi-unidade <span class="dia">◆</span></span>
+    <span class="marquee-item">Clube de assinatura <span class="dia">◆</span></span>
+    <span class="marquee-item">IA anti no-show <span class="dia">◆</span></span>
+    <span class="marquee-item">Portfólio do barbeiro <span class="dia">◆</span></span>
+    <span class="marquee-item">Controle de estoque <span class="dia">◆</span></span>
+    <span class="marquee-item">Marketplace público <span class="dia">◆</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">Agenda inteligente <span class="dia">◆</span></span>
+    <span class="marquee-item">WhatsApp integrado <span class="dia">◆</span></span>
+    <span class="marquee-item">Comissão automática <span class="dia">◆</span></span>
+    <span class="marquee-item">Pix · Cartão · Dinheiro <span class="dia">◆</span></span>
+    <span class="marquee-item">Multi-unidade <span class="dia">◆</span></span>
+    <span class="marquee-item">Clube de assinatura <span class="dia">◆</span></span>
+    <span class="marquee-item">IA anti no-show <span class="dia">◆</span></span>
+    <span class="marquee-item">Portfólio do barbeiro <span class="dia">◆</span></span>
+    <span class="marquee-item">Controle de estoque <span class="dia">◆</span></span>
+    <span class="marquee-item">Marketplace público <span class="dia">◆</span></span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <p class="stats-head">Os números das barbearias que já operam com Navalha</p>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-num"><span class="small">R$</span> 4.280<span class="suffix">k</span></div>
+        <div class="stat-label">Faturamento processado / mês</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">87<span class="suffix">%</span></div>
+        <div class="stat-label">Ocupação média de cadeira</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">−68<span class="suffix">%</span></div>
+        <div class="stat-label">Redução de no-show com IA</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">12<span class="suffix">min</span></div>
+        <div class="stat-label">Setup médio do dono</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 01 · Como funciona</div>
+        <h2 class="section-title">Três <span class="it">movimentos</span><br/>e a navalha gira.</h2>
+      </div>
+      <p class="section-lead">Do cadastro à primeira comissão paga em menos de uma hora. Sem migração dolorosa, sem treinamento de mês inteiro, sem suporte por chatbot.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <h3 class="how-title">Configure em minutos.</h3>
+        <p class="how-desc">Importe seus serviços, equipe, horários e clientes a partir de qualquer planilha ou sistema antigo. Nossa IA já organiza a agenda baseada no seu histórico.</p>
+        <div class="how-detail">Tempo médio: <span class="v">12 minutos</span></div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <h3 class="how-title">Receba agendamentos.</h3>
+        <p class="how-desc">Seu link público entra em qualquer perfil — Instagram, Google, WhatsApp. O cliente agenda em 3 cliques. Você recebe a confirmação direto no app.</p>
+        <div class="how-detail">Agendamentos automáticos: <span class="v">24/7</span></div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <h3 class="how-title">Feche o caixa.</h3>
+        <p class="how-desc">No fim do dia, comissão calculada por barbeiro, fluxo de caixa pronto pro contador, e os clientes que faltaram já receberam lembrete.</p>
+        <div class="how-detail">Fechamento: <span class="v">1 clique</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 02 · Recursos</div>
+        <h2 class="section-title">Tudo que sua<br/>barbearia <span class="it">já precisava</span>.</h2>
+      </div>
+      <p class="section-lead">Não é um app de agenda com extras. É um sistema operacional inteiro — projetado por quem entende que barbearia é negócio de gente, mas vive de número.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feat big">
+        <div class="feat-hd"><div class="feat-glyph">A</div><span class="feat-label">Agenda</span></div>
+        <h3 class="feat-title">Agenda inteligente com IA anti no-show.</h3>
+        <p class="feat-desc">Algoritmo prevê quem provavelmente vai faltar, sugere overbooking seguro e bloqueia horários de clientes problemáticos. Reduz no-show em até 68%.</p>
+        <div class="feat-visual">
+          <span class="fv-chip accent">14:30 · CONFIRMADO</span>
+          <span class="fv-chip">15:00 · CONFIRMADO</span>
+          <span class="fv-chip">15:30 · RISCO 24%</span>
+          <span class="fv-chip">16:00 · OVERBOOK</span>
+        </div>
+      </div>
+      <div class="feat mid">
+        <div class="feat-hd"><div class="feat-glyph">W</div><span class="feat-label">WhatsApp</span></div>
+        <h3 class="feat-title">Confirmação por WhatsApp nativa.</h3>
+        <p class="feat-desc">Lembrete 24h e 1h antes. Cliente confirma com um botão. Tudo pelo WhatsApp Business oficial, sem gambiarra.</p>
+      </div>
+      <div class="feat mid">
+        <div class="feat-hd"><div class="feat-glyph">C</div><span class="feat-label">Comissão</span></div>
+        <h3 class="feat-title">Comissão automática.</h3>
+        <p class="feat-desc">Configure uma vez. O sistema calcula por barbeiro, por serviço, por turno. Comprovante PDF pronto pro contador.</p>
+        <div class="feat-visual">
+          <div class="fv-bars">
+            <div class="bar" style="height: 30%"></div>
+            <div class="bar" style="height: 55%"></div>
+            <div class="bar" style="height: 80%"></div>
+            <div class="bar" style="height: 65%"></div>
+            <div class="bar" style="height: 90%"></div>
+            <div class="bar" style="height: 70%"></div>
+            <div class="bar" style="height: 45%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="feat mid">
+        <div class="feat-hd"><div class="feat-glyph">$</div><span class="feat-label">Pagamento</span></div>
+        <h3 class="feat-title">Pix, cartão e dinheiro num só caixa.</h3>
+        <p class="feat-desc">Maquininha integrada (Stone, Pagseguro, Cielo) ou Pix QR Code gerado na hora. Conciliação automática.</p>
+      </div>
+      <div class="feat mid">
+        <div class="feat-hd"><div class="feat-glyph">M</div><span class="feat-label">Multi-unidade</span></div>
+        <h3 class="feat-title">Operação multi-loja.</h3>
+        <p class="feat-desc">Uma conta, várias unidades. Compare faturamento, equipe e ticket médio lado a lado. Pensado pra franquia.</p>
+      </div>
+      <div class="feat mid">
+        <div class="feat-hd"><div class="feat-glyph">K</div><span class="feat-label">Clube</span></div>
+        <h3 class="feat-title">Assinatura mensal.</h3>
+        <p class="feat-desc">Lance seu próprio "clube do corte". Mensalidade automática, cartão recorrente, fidelidade integrada.</p>
+      </div>
+      <div class="feat full">
+        <div class="feat-hd"><div class="feat-glyph">G</div><span class="feat-label">Galeria</span></div>
+        <h3 class="feat-title">Portfólio do barbeiro + Marketplace público.</h3>
+        <p class="feat-desc">Cada barbeiro tem seu portfólio público com fotos dos cortes. Clientes descobrem sua barbearia pelo marketplace Navalha — SEO incluso, sem precisar de site.</p>
+        <div class="feat-visual" style="gap: 4px;">
+          <div style="width: 48px; height: 100%; border-radius: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-soft)); opacity: .9;"></div>
+          <div style="width: 48px; height: 100%; border-radius: 3px; background: linear-gradient(135deg, var(--ink-soft), var(--ink-mute)); opacity: .6;"></div>
+          <div style="width: 48px; height: 100%; border-radius: 3px; background: linear-gradient(135deg, var(--accent-soft), var(--accent)); opacity: .8;"></div>
+          <div style="width: 48px; height: 100%; border-radius: 3px; background: linear-gradient(135deg, var(--ink-mute), var(--ink-soft)); opacity: .5;"></div>
+          <div style="width: 48px; height: 100%; border-radius: 3px; background: linear-gradient(135deg, var(--accent), var(--hl)); opacity: .9;"></div>
+          <span class="fv-chip" style="margin-left: auto;">+ 240 cortes publicados</span>
+        </div>
+      </div>
+      <div class="feat sm">
+        <div class="feat-hd"><div class="feat-glyph">E</div><span class="feat-label">Estoque</span></div>
+        <h3 class="feat-title">Controle de estoque.</h3>
+        <p class="feat-desc">Pomada, navalha, óleo — alerta quando vai acabar.</p>
+      </div>
+      <div class="feat sm">
+        <div class="feat-hd"><div class="feat-glyph">R</div><span class="feat-label">Relatórios</span></div>
+        <h3 class="feat-title">Relatórios pro contador.</h3>
+        <p class="feat-desc">DRE, fluxo de caixa e SPED em PDF, 1 clique.</p>
+      </div>
+      <div class="feat sm">
+        <div class="feat-hd"><div class="feat-glyph">F</div><span class="feat-label">Fiscal</span></div>
+        <h3 class="feat-title">NFS-e automática.</h3>
+        <p class="feat-desc">Nota fiscal emitida no fechamento, integração com sua prefeitura.</p>
+      </div>
+      <div class="feat sm">
+        <div class="feat-hd"><div class="feat-glyph">P</div><span class="feat-label">Produtividade</span></div>
+        <h3 class="feat-title">Análise de barbeiro.</h3>
+        <p class="feat-desc">Tempo médio, ticket, retenção e ranking.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 03 · Para cada papel</div>
+        <h2 class="section-title">Um sistema.<br/><span class="it">Quatro</span> perspectivas.</h2>
+      </div>
+      <p class="section-lead">Dono enxerga o negócio. Barbeiro foca no corte. Secretária controla a recepção. Cliente agenda em 3 cliques. Cada um vê o que precisa, nada além.</p>
+    </div>
+
+    <div class="roles-tabs" role="tablist">
+      <button class="role-tab" role="tab" data-role="dono" aria-pressed="true">→ Dono</button>
+      <button class="role-tab" role="tab" data-role="barbeiro" aria-pressed="false">→ Barbeiro</button>
+      <button class="role-tab" role="tab" data-role="secretaria" aria-pressed="false">→ Secretária</button>
+      <button class="role-tab" role="tab" data-role="cliente" aria-pressed="false">→ Cliente</button>
+    </div>
+
+    <div class="role-panel active" data-panel="dono">
+      <div>
+        <div class="mono" style="font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase;">Para o dono</div>
+        <h3>Veja o negócio <span class="it">por inteiro</span>.</h3>
+        <p class="role-lead">Painel financeiro, equipe, multi-unidade, projeções. Sem planilha, sem WhatsApp do contador.</p>
+        <ul class="role-bullets">
+          <li><span class="check">✓</span> DRE, fluxo de caixa e DRE comparado com o mês anterior, em tempo real.</li>
+          <li><span class="check">✓</span> Ranking de barbeiros por receita, ocupação e retenção de cliente.</li>
+          <li><span class="check">✓</span> Comissão automática por regra: percentual, fixo, escalonado ou por serviço.</li>
+          <li><span class="check">✓</span> Compare até 12 unidades lado a lado — pensado para franquia.</li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-primary">Ver dashboard do dono →</a>
+      </div>
+      <div class="role-mock">
+        <div class="rm-head"><div class="ttl">Visão geral · Outubro</div><div class="meta">Atualizado · 14:32</div></div>
+        <div class="rm-stat-row">
+          <div class="rm-stat"><div class="v">R$ 42.8k</div><div class="l">Receita mês</div></div>
+          <div class="rm-stat"><div class="v">87%</div><div class="l">Ocupação</div></div>
+          <div class="rm-stat"><div class="v">+24%</div><div class="l">vs Set.</div></div>
+        </div>
+        <div class="rm-chart">
+          <div class="bar" style="height: 32%"></div><div class="bar" style="height: 48%"></div><div class="bar" style="height: 38%"></div><div class="bar" style="height: 62%"></div><div class="bar" style="height: 56%"></div><div class="bar" style="height: 78%"></div><div class="bar" style="height: 88%"></div><div class="bar" style="height: 72%"></div><div class="bar" style="height: 92%"></div><div class="bar" style="height: 65%"></div><div class="bar" style="height: 80%"></div><div class="bar" style="height: 96%"></div>
+        </div>
+        <div class="rm-list">
+          <div class="rm-item"><div class="tm">★<br/>1º</div><div><div class="nm">Rafael Santos</div><div class="sv">R$ 12.4k · 142 cortes · 92% ocup.</div></div><span class="st">+18%</span></div>
+          <div class="rm-item"><div class="tm">★<br/>2º</div><div><div class="nm">Bruno Mello</div><div class="sv">R$ 9.8k · 118 cortes · 84% ocup.</div></div><span class="st ok">+9%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-panel" data-panel="barbeiro">
+      <div>
+        <div class="mono" style="font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase;">Para o barbeiro</div>
+        <h3>Foco no corte.<br/>Resto é <span class="it">automático</span>.</h3>
+        <p class="role-lead">Sua agenda do dia, sua comissão acumulada, seus clientes regulares — tudo no celular.</p>
+        <ul class="role-bullets">
+          <li><span class="check">✓</span> Agenda do dia em 1 tela, com ficha do cliente, foto do último corte e preferências.</li>
+          <li><span class="check">✓</span> Comissão acumulada em tempo real — você sempre sabe quanto vai receber.</li>
+          <li><span class="check">✓</span> Bloqueie horários direto pelo app: férias, almoço, reunião.</li>
+          <li><span class="check">✓</span> Portfólio público: poste o corte, ganhe cliente novo via marketplace.</li>
+        </ul>
+        <a href="barbeiro.html" class="btn btn-primary">Ver painel do barbeiro →</a>
+      </div>
+      <div class="role-mock">
+        <div class="rm-head"><div class="ttl">Rafael · Hoje</div><div class="meta">Quinta · 21/05</div></div>
+        <div class="rm-stat-row">
+          <div class="rm-stat"><div class="v">8</div><div class="l">Cortes hoje</div></div>
+          <div class="rm-stat"><div class="v">R$ 384</div><div class="l">Comissão</div></div>
+          <div class="rm-stat"><div class="v">2</div><div class="l">Próximos</div></div>
+        </div>
+        <div class="rm-list">
+          <div class="rm-item"><div class="tm">14:30</div><div><div class="nm">Ricardo Albuquerque</div><div class="sv">Corte + barba · regular há 8m</div></div><span class="st">Agora</span></div>
+          <div class="rm-item"><div class="tm">15:00</div><div><div class="nm">João Marcelo</div><div class="sv">Visagismo · 1ª vez</div></div><span class="st ok">Pago</span></div>
+          <div class="rm-item"><div class="tm">16:00</div><div><div class="nm">Lucas Andrade</div><div class="sv">Corte simples</div></div><span class="st">Confirmado</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-panel" data-panel="secretaria">
+      <div>
+        <div class="mono" style="font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase;">Para a secretária / recepção</div>
+        <h3>Recepção em<br/><span class="it">controle total</span>.</h3>
+        <p class="role-lead">Agenda de todos os barbeiros num só lugar. WhatsApp dos clientes. Caixa unificado.</p>
+        <ul class="role-bullets">
+          <li><span class="check">✓</span> Visão consolidada da agenda — todos os barbeiros, em colunas, com cores por serviço.</li>
+          <li><span class="check">✓</span> WhatsApp embutido: responda confirmações, reagende, atenda dúvidas sem trocar de app.</li>
+          <li><span class="check">✓</span> Caixa: recebimento, troco, fechamento — Pix, cartão e dinheiro no mesmo fluxo.</li>
+          <li><span class="check">✓</span> Lista de espera automática quando há cancelamento.</li>
+        </ul>
+        <a href="secretaria.html" class="btn btn-primary">Ver painel da secretária →</a>
+      </div>
+      <div class="role-mock">
+        <div class="rm-head"><div class="ttl">Recepção · Agora</div><div class="meta">Quinta · 14:32</div></div>
+        <div class="rm-stat-row">
+          <div class="rm-stat"><div class="v">3</div><div class="l">Em atendimento</div></div>
+          <div class="rm-stat"><div class="v">5</div><div class="l">Na fila</div></div>
+          <div class="rm-stat"><div class="v">R$ 840</div><div class="l">Caixa</div></div>
+        </div>
+        <div class="rm-list">
+          <div class="rm-item"><div class="tm">●<br/><span style="font-size:8px;">WPP</span></div><div><div class="nm">João M. confirma 15:00</div><div class="sv">Resposta automática enviada</div></div><span class="st ok">OK</span></div>
+          <div class="rm-item"><div class="tm">●<br/><span style="font-size:8px;">CX</span></div><div><div class="nm">Pagamento Pix · R$ 80</div><div class="sv">Ricardo A. · Rafael S.</div></div><span class="st ok">Pago</span></div>
+          <div class="rm-item"><div class="tm">●<br/><span style="font-size:8px;">FILA</span></div><div><div class="nm">2 clientes em espera</div><div class="sv">Próximo encaixe: 14:50</div></div><span class="st">Live</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="role-panel" data-panel="cliente">
+      <div>
+        <div class="mono" style="font-size: 11px; letter-spacing: .2em; color: var(--accent); text-transform: uppercase;">Para o cliente final</div>
+        <h3>Agendar em<br/><span class="it">três cliques</span>.</h3>
+        <p class="role-lead">Sem cadastro chato, sem ligar, sem app pesado. Só link, escolher horário, pronto.</p>
+        <ul class="role-bullets">
+          <li><span class="check">✓</span> Link público: escolha serviço, barbeiro favorito, horário — e confirme.</li>
+          <li><span class="check">✓</span> Histórico de cortes com foto: peça "o mesmo da última vez" com 1 toque.</li>
+          <li><span class="check">✓</span> Clube de assinatura: corte mensal por valor fixo, cancelamento livre.</li>
+          <li><span class="check">✓</span> Programa de fidelidade: a cada 10 cortes, 1 grátis. Sem cartão de papel.</li>
+        </ul>
+        <a href="cliente.html" class="btn btn-primary">Ver app do cliente →</a>
+      </div>
+      <div class="role-mock">
+        <div class="rm-head"><div class="ttl">Ricardo · Próximo</div><div class="meta">Cliente desde 2024</div></div>
+        <div class="rm-stat-row">
+          <div class="rm-stat"><div class="v">14</div><div class="l">Cortes</div></div>
+          <div class="rm-stat"><div class="v">8 / 10</div><div class="l">Para grátis</div></div>
+          <div class="rm-stat"><div class="v">Plat.</div><div class="l">Status</div></div>
+        </div>
+        <div class="rm-list">
+          <div class="rm-item"><div class="tm">22<br/>MAI</div><div><div class="nm">Corte + Barba</div><div class="sv">14:30 · Rafael S. · 30min</div></div><span class="st">Hoje</span></div>
+          <div class="rm-item"><div class="tm">28<br/>MAI</div><div><div class="nm">Recorrente · Mensal</div><div class="sv">Próximo do clube</div></div><span class="st ok">Clube</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 04 · Quem afia com a gente</div>
+        <h2 class="section-title">Barbearias que<br/>já <span class="it">não voltam atrás</span>.</h2>
+      </div>
+      <p class="section-lead">Não é depoimento de marketing. É número e nome de quem entrega corte todo dia e fechou que Navalha vale a pena.</p>
+    </div>
+    <div class="testi-grid">
+      <div class="testi">
+        <p class="testi-quote">Tirei a planilha do Excel e o caderninho do balcão. Vejo a comissão de cada barbeiro sem precisar calcular. Em 2 meses subi o ticket médio em 30%.</p>
+        <div class="testi-foot">
+          <div class="testi-who"><div class="nm">Augusto Vianna</div><div class="rl">Dono · Tonsor Barber · SP</div></div>
+          <div class="testi-metric">Ticket médio<span class="v">+30%</span></div>
+        </div>
+      </div>
+      <div class="testi">
+        <p class="testi-quote">Cliente entra, vê meu corte no app, escolhe horário. Eu só corto. Antes eu perdia uma hora por dia respondendo WhatsApp.</p>
+        <div class="testi-foot">
+          <div class="testi-who"><div class="nm">Rafael Santos</div><div class="rl">Barbeiro · Studio K · RJ</div></div>
+          <div class="testi-metric">Tempo livre<span class="v">+1h/dia</span></div>
+        </div>
+      </div>
+      <div class="testi">
+        <p class="testi-quote">Tenho 4 unidades. Antes era impossível saber qual ia melhor. Agora vejo tudo numa tela só. Fechei a 5ª unidade ano que vem.</p>
+        <div class="testi-foot">
+          <div class="testi-who"><div class="nm">Daniel Cardoso</div><div class="rl">Franqueador · Bigode SA · BH</div></div>
+          <div class="testi-metric">Unidades<span class="v">4 → 5</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="precos">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 05 · Preços</div>
+        <h2 class="section-title">Direto.<br/>Sem <span class="it">enrolação</span>.</h2>
+      </div>
+      <p class="section-lead">Por cadeira ativa, paga só pelo que usa. Sem setup fee, sem fidelidade, sem letra miúda.</p>
+    </div>
+
+    <div class="price-toggle" role="group" aria-label="Período de cobrança">
+      <button data-period="m" aria-pressed="true">Mensal</button>
+      <button data-period="a" aria-pressed="false">Anual <span class="save">-20%</span></button>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price">
+        <div>
+          <div class="price-name">Cadeira</div>
+          <p class="price-desc">Pra barbearia solo ou dupla. Tudo essencial pra sair do caderno.</p>
+        </div>
+        <div class="price-tag"><span class="currency">R$</span><span class="amount" data-m="69" data-a="55">69</span><span class="per">/cadeira/mês</span></div>
+        <ul class="price-feats">
+          <li>Agenda + WhatsApp ilimitado</li>
+          <li>Pagamento Pix / Cartão</li>
+          <li>1 unidade</li>
+          <li>Comissão automática</li>
+          <li>Suporte por chat</li>
+          <li class="x">IA anti no-show</li>
+          <li class="x">Multi-unidade</li>
+          <li class="x">Marketplace público</li>
+        </ul>
+        <a class="btn btn-ghost price-cta" href="onboarding.html">Começar grátis →</a>
+      </div>
+
+      <div class="price featured">
+        <div>
+          <div class="price-name">Salão</div>
+          <p class="price-desc">Pra barbearia que cresce. Tudo do Cadeira + IA e marketing.</p>
+        </div>
+        <div class="price-tag"><span class="currency">R$</span><span class="amount" data-m="119" data-a="95">119</span><span class="per">/cadeira/mês</span></div>
+        <ul class="price-feats">
+          <li>Tudo do plano Cadeira</li>
+          <li>IA anti no-show</li>
+          <li>Clube de assinatura</li>
+          <li>Marketplace público (perfil)</li>
+          <li>Portfólio do barbeiro</li>
+          <li>Fidelidade gamificada</li>
+          <li>NFS-e automática</li>
+          <li class="x">Multi-unidade</li>
+        </ul>
+        <a class="btn btn-primary price-cta" href="onboarding.html">Testar 14 dias grátis →</a>
+      </div>
+
+      <div class="price">
+        <div>
+          <div class="price-name">Franquia</div>
+          <p class="price-desc">Pra rede de barbearias. Tudo do Salão + multi-unidade e API.</p>
+        </div>
+        <div class="price-tag"><span class="currency">R$</span><span class="amount" data-m="189" data-a="151">189</span><span class="per">/cadeira/mês</span></div>
+        <ul class="price-feats">
+          <li>Tudo do plano Salão</li>
+          <li>Multi-unidade ilimitada</li>
+          <li>Painel consolidado</li>
+          <li>SSO + permissões granulares</li>
+          <li>API + Webhooks</li>
+          <li>Gerente de conta dedicado</li>
+          <li>SLA 99.9%</li>
+          <li>Customização de marca</li>
+        </ul>
+        <a class="btn btn-ghost price-cta" href="onboarding.html">Falar com vendas →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 06 · Perguntas</div>
+        <h2 class="section-title">O que <span class="it">perguntam</span><br/>antes de assinar.</h2>
+      </div>
+      <p class="section-lead">Resposta direta. Se a sua não estiver aqui, chama no WhatsApp.</p>
+    </div>
+
+    <div class="faq-grid">
+      <details class="faq-item">
+        <summary>Funciona pra barbearia solo (1 cadeira)?</summary>
+        <p class="faq-answer">Funciona e foi pensado pra isso também. O plano Cadeira (R$ 69/mês) cobre tudo que um barbeiro autônomo precisa: agenda, WhatsApp, pagamento. Setup leva 5 minutos no celular.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Importa de outro sistema (Trinks, Booksy, Belisa)?</summary>
+        <p class="faq-answer">Sim. Importamos clientes, serviços, histórico e agenda futura de qualquer planilha CSV ou exportação. Para Trinks e Booksy, temos importador automático. Pra outros, nosso time faz na mão sem custo no primeiro mês.</p>
+      </details>
+      <details class="faq-item">
+        <summary>O WhatsApp é oficial ou gambiarra?</summary>
+        <p class="faq-answer">Oficial. Usamos WhatsApp Business API através de provedor homologado. Suas mensagens não somem, seu número não é banido, e você pode usar o mesmo número que já usa pessoalmente.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Como funciona a comissão automática?</summary>
+        <p class="faq-answer">Você configura uma vez por barbeiro: pode ser percentual fixo (ex: 50%), percentual escalonado (50% até R$ 5k, 60% acima), valor fixo por serviço, ou misto. O sistema calcula no fechamento de cada serviço pago. Comprovante em PDF pro contador.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Tem fidelidade ou multa?</summary>
+        <p class="faq-answer">Nenhuma. Mensal sem fidelidade. Cancela quando quiser pelo próprio painel, sem ligar pra ninguém. Você leva seus dados embora num clique.</p>
+      </details>
+      <details class="faq-item">
+        <summary>E se a barbearia não tiver internet boa?</summary>
+        <p class="faq-answer">A agenda e o caixa funcionam offline. Quando a conexão volta, sincroniza tudo automaticamente. Não dá pra emitir Pix nem mandar WhatsApp offline — pra isso, internet é necessária.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Como vocês cobram a maquininha?</summary>
+        <p class="faq-answer">Não cobramos. Você usa sua maquininha atual (Stone, Cielo, Pagseguro, Ton, etc) e integra com Navalha gratuitamente. A taxa é só do seu adquirente. Pix gerado na hora também não tem taxa extra nossa.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Funciona pra franquia / rede?</summary>
+        <p class="faq-answer">Sim, esse é o plano Franquia. Painel consolidado de todas as unidades, comparativo lado a lado, permissões por gerente regional, SSO e API. Já operamos redes com 12+ unidades.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <svg class="bg-emblem" viewBox="0 0 240 240" aria-hidden="true">
+    <defs><path id="topArcCTA" d="M 30 120 A 90 90 0 0 1 210 120" /></defs>
+    <circle cx="120" cy="120" r="110" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <circle cx="120" cy="120" r="100" fill="none" stroke="currentColor" stroke-width="0.6"/>
+    <text font-size="11.5" letter-spacing="3.4" fill="currentColor" font-family="Cormorant Garamond, serif" font-weight="600"><textPath href="#topArcCTA" startOffset="50%" text-anchor="middle">★ NAVALHA ★ BARBER SYSTEM ★</textPath></text>
+    <text x="120" y="148" font-size="90" font-family="Cormorant Garamond, serif" font-style="italic" font-weight="500" fill="currentColor" text-anchor="middle">N</text>
+  </svg>
+  <div class="wrap" style="position: relative; z-index: 1;">
+    <span class="eyebrow"><span class="pip"></span> Pronto pra afiar?</span>
+    <h2>Comece <span class="it">hoje</span>.<br/>Corte amanhã.</h2>
+    <p>14 dias grátis. Setup em 5 minutos. Sem cartão de crédito pra começar.</p>
+    <a class="btn btn-primary btn-lg" href="onboarding.html">Criar minha barbearia →</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand-word">NAVALHA</div>
+        <p>O sistema operacional das barbearias brasileiras.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Produto</h4>
+        <ul>
+          <li><a href="landing.html#precos">Preços</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="cliente.html">App do cliente</a></li>
+          <li><a href="agendamento.html">Marketplace</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="#">Sobre</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Carreiras</a></li>
+          <li><a href="#">Imprensa</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Recursos</h4>
+        <ul>
+          <li><a href="index.html">Brand</a></li>
+          <li><a href="#">Ajuda</a></li>
+          <li><a href="#">API Docs</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Termos</a></li>
+          <li><a href="#">Privacidade</a></li>
+          <li><a href="#">LGPD</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 Navalha Sistemas · CNPJ 00.000.000/0001-00</span>
+      <span>São Paulo · Brasil · v1.0.0</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Theme switching (shared)
+const THEMES = ['classico', 'moderno', 'terra'];
+function applyTheme(name) {
+  document.body.setAttribute('data-theme', name);
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === name ? 'true' : 'false'));
+  try { localStorage.setItem('navalha-theme', name); } catch(e) {}
+}
+document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeBtn)));
+try { const s = localStorage.getItem('navalha-theme'); if (s && THEMES.includes(s)) applyTheme(s); else applyTheme('classico'); } catch(e) { applyTheme('classico'); }
+
+// Roles tabs
+document.querySelectorAll('.role-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.role-tab').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    btn.setAttribute('aria-pressed', 'true');
+    document.querySelectorAll('.role-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.role-panel[data-panel="' + btn.dataset.role + '"]').classList.add('active');
+  });
+});
+
+// Pricing toggle
+document.querySelectorAll('.price-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const period = btn.dataset.period;
+    document.querySelectorAll('.price-toggle button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    btn.setAttribute('aria-pressed', 'true');
+    document.querySelectorAll('.price-tag .amount').forEach(el => {
+      el.textContent = el.dataset[period];
+    });
+  });
+});
+</script>
+
+</body>
+</html>

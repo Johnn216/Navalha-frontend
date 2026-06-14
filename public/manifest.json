@@ -1,0 +1,23 @@
+{
+  "name": "Navalha",
+  "short_name": "Navalha",
+  "description": "SaaS para barbearias — agenda, caixa e comissão",
+  "start_url": "/cliente",
+  "display": "standalone",
+  "background_color": "#0F0D0A",
+  "theme_color": "#0F0D0A",
+  "lang": "pt-BR",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Barbeiro", "url": "/barbeiro", "description": "App do barbeiro" },
+    { "name": "Cliente", "url": "/cliente", "description": "App do cliente" }
+  ]
+}

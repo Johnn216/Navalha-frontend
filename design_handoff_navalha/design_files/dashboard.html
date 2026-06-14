@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Navalha — Dashboard do Dono</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root {
+  --bg: #0F0D0A; --bg-soft: #15120E; --bg-elev: #1C1813; --bg-card: #18140E;
+  --ink: #F2EBDC; --ink-soft: #C9C0AC; --ink-mute: #8A8170;
+  --rule: #2A241B; --rule-soft: #1F1A14;
+  --accent: #C9A35E; --accent-soft: #8C6F3A; --accent-ink: #0F0D0A; --hl: #E8C97A;
+  --ok: #7BA776; --danger: #C9533E; --warn: #D9A04A;
+  --sidebar-w: 240px;
+}
+[data-theme="moderno"] { --bg:#0B1116; --bg-soft:#11181F; --bg-elev:#182028; --bg-card: #131B23; --ink:#ECF1F4; --ink-soft:#B6C2CB; --ink-mute:#6E7C86; --rule:#1F2A33; --rule-soft:#172029; --accent:#00C896; --accent-soft:#027E60; --accent-ink:#08110D; --hl:#2DE3B1; }
+[data-theme="terra"] { --bg:#F1ECE3; --bg-soft:#E8E1D2; --bg-elev:#FFFFFF; --bg-card: #FAF6EE; --ink:#1A1614; --ink-soft:#4A413A; --ink-mute:#7A6F62; --rule:#D5CCB9; --rule-soft:#E1D9C6; --accent:#2A4A3B; --accent-soft:#8B5A2B; --accent-ink:#F1ECE3; --hl:#C46A2A; --ok:#3D6B4E; --danger:#A8442E; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.serif { font-family: "Cormorant Garamond", serif; }
+.mono { font-family: "JetBrains Mono", monospace; }
+.tnum { font-variant-numeric: tabular-nums; }
+.upper { text-transform: uppercase; letter-spacing: .18em; }
+.it { font-style: italic; }
+button { font: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+
+/* ====== SIDEBAR ====== */
+.sidebar { background: var(--bg-soft); border-right: 1px solid var(--rule); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+.sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 12px; }
+.sb-brand .mini-mark { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent); display: grid; place-items: center; color: var(--accent); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; line-height: 1; flex-shrink: 0; }
+.sb-brand .brand-word { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 20px; letter-spacing: .14em; }
+.sb-brand .brand-sub { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; margin-top: -2px; }
+
+.sb-unit { padding: 14px 16px; border-bottom: 1px solid var(--rule); }
+.sb-unit-picker { width: 100%; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; color: var(--ink); }
+.sb-unit-picker .unit-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.sb-unit-picker .unit-info { flex: 1; text-align: left; }
+.sb-unit-picker .unit-name { font-family: "Cormorant Garamond", serif; font-size: 16px; font-weight: 600; line-height: 1; }
+.sb-unit-picker .unit-meta { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; margin-top: 2px; }
+.sb-unit-picker .unit-arrow { color: var(--ink-mute); font-family: "JetBrains Mono", monospace; }
+
+.sb-nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+.sb-section { padding: 14px 16px 6px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-mute); }
+.sb-item { display: flex; align-items: center; gap: 12px; padding: 9px 16px; color: var(--ink-soft); font-size: 13.5px; border-left: 2px solid transparent; transition: background .15s, color .15s; }
+.sb-item:hover { background: var(--bg-elev); color: var(--ink); }
+.sb-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sb-item.active { color: var(--accent); border-left-color: var(--accent); background: color-mix(in oklab, var(--accent) 8%, transparent); }
+.sb-item .glyph { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--rule); display: grid; place-items: center; font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 13px; color: var(--ink-mute); flex-shrink: 0; }
+.sb-item.active .glyph { border-color: var(--accent); color: var(--accent); }
+.sb-item .badge-n { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--bg-elev); color: var(--ink-mute); }
+.sb-item.active .badge-n { background: var(--accent); color: var(--accent-ink); }
+
+.sb-foot { padding: 14px 16px; border-top: 1px solid var(--rule); display: flex; align-items: center; gap: 10px; }
+.sb-foot .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 14px; }
+.sb-foot .me { flex: 1; }
+.sb-foot .me .nm { font-weight: 600; font-size: 13px; line-height: 1.1; }
+.sb-foot .me .rl { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; margin-top: 2px; }
+
+/* ====== MAIN ====== */
+.main { display: flex; flex-direction: column; min-width: 0; }
+
+.topbar { display: flex; align-items: center; gap: 16px; padding: 16px 28px; border-bottom: 1px solid var(--rule); background: color-mix(in oklab, var(--bg) 92%, transparent); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); }
+.topbar .search { flex: 1; max-width: 380px; position: relative; }
+.topbar .search input { width: 100%; background: var(--bg-soft); border: 1px solid var(--rule); color: var(--ink); padding: 10px 14px 10px 36px; border-radius: 6px; font: inherit; font-size: 13px; }
+.topbar .search input::placeholder { color: var(--ink-mute); }
+.topbar .search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.topbar .search .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-mute); font-family: "JetBrains Mono", monospace; font-size: 14px; }
+.topbar .kbd { font-family: "JetBrains Mono", monospace; font-size: 9px; padding: 2px 6px; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink-mute); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.topbar .spacer { flex: 1; }
+.topbar .pill { background: var(--bg-soft); border: 1px solid var(--rule); padding: 7px 12px; border-radius: 999px; font-size: 12px; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 8px; }
+.topbar .pill.live { color: var(--ok); }
+.topbar .pill.live .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 25%, transparent); }
+.topbar .icon-btn { width: 34px; height: 34px; border-radius: 6px; background: var(--bg-soft); border: 1px solid var(--rule); display: grid; place-items: center; color: var(--ink-soft); font-family: "JetBrains Mono", monospace; font-size: 14px; position: relative; }
+.topbar .icon-btn:hover { color: var(--ink); border-color: var(--accent); }
+.topbar .icon-btn .dot { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.topbar .theme-dots { display: flex; gap: 4px; padding: 4px; background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 999px; }
+.topbar .theme-dot { width: 18px; height: 18px; border-radius: 50%; background: transparent; border: none; padding: 0; cursor: pointer; display: grid; place-items: center; }
+.topbar .theme-dot[aria-pressed="true"] .sw { box-shadow: 0 0 0 2px var(--accent); }
+.topbar .theme-dot .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.topbar .theme-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 50%; }
+
+/* ====== PAGE HEADER ====== */
+.page-head { padding: 32px 28px 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.page-head .crumb { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px; }
+.page-head h1 { font-family: "Cormorant Garamond", serif; font-size: 56px; font-weight: 500; line-height: 1; margin: 0; letter-spacing: -.01em; }
+.page-head h1 .it { font-style: italic; color: var(--accent); }
+.page-head .ph-sub { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 18px; color: var(--ink-soft); margin: 6px 0 0; }
+
+.ph-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; padding: 10px 16px; border-radius: 6px; border: 1px solid var(--rule); background: var(--bg-soft); color: var(--ink); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn-primary:hover { background: var(--hl); color: var(--accent-ink); }
+.btn .kb { font-family: "JetBrains Mono", monospace; font-size: 9px; padding: 1px 4px; border: 1px solid currentColor; opacity: .6; border-radius: 2px; }
+
+.date-picker { display: inline-flex; align-items: center; gap: 0; }
+.date-picker button { background: var(--bg-soft); border: 1px solid var(--rule); padding: 9px 14px; color: var(--ink-soft); font-size: 12.5px; }
+.date-picker button:first-child { border-radius: 6px 0 0 6px; }
+.date-picker button:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+.date-picker button + button { border-left: none; }
+.date-picker button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* ====== KPIs ====== */
+.content { padding: 0 28px 32px; display: grid; gap: 16px; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpi { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden; }
+.kpi-head { display: flex; justify-content: space-between; align-items: center; }
+.kpi-label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.kpi-trend { font-family: "JetBrains Mono", monospace; font-size: 11px; padding: 3px 8px; border-radius: 3px; font-weight: 500; }
+.kpi-trend.up { background: color-mix(in oklab, var(--ok) 16%, transparent); color: var(--ok); border: 1px solid color-mix(in oklab, var(--ok) 35%, transparent); }
+.kpi-trend.down { background: color-mix(in oklab, var(--danger) 16%, transparent); color: var(--danger); border: 1px solid color-mix(in oklab, var(--danger) 35%, transparent); }
+.kpi-value { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 52px; line-height: .95; letter-spacing: -.01em; }
+.kpi-value .cur { font-size: 22px; color: var(--ink-mute); margin-right: 4px; }
+.kpi-value .sub { font-size: 22px; color: var(--ink-mute); }
+.kpi-meta { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: .04em; }
+.kpi-spark { height: 28px; display: flex; align-items: flex-end; gap: 2px; margin-top: auto; }
+.kpi-spark .b { flex: 1; background: var(--accent); opacity: .6; border-radius: 1px; min-height: 2px; }
+.kpi-spark .b.hi { opacity: 1; }
+
+/* ====== GRID LAYOUT ====== */
+.grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+.grid-sub { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.card { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.card-title { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; line-height: 1; margin: 0; }
+.card-title .meta { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; margin-left: 10px; font-weight: 400; }
+.card-tools { display: flex; gap: 6px; align-items: center; }
+.card-tools button { background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); font-size: 11px; padding: 5px 10px; border-radius: 4px; font-family: "JetBrains Mono", monospace; letter-spacing: .12em; text-transform: uppercase; }
+.card-tools button:hover { border-color: var(--accent); color: var(--accent); }
+.card-tools button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* === CHART (Revenue) === */
+.chart-wrap { position: relative; padding-top: 8px; }
+.chart-legend { display: flex; gap: 18px; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 12px; }
+.chart-legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.chart-svg { width: 100%; height: 240px; display: block; }
+.chart-grid line { stroke: var(--rule); }
+.chart-axis text { fill: var(--ink-mute); font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.chart-area { fill: url(#area-fill); }
+.chart-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.chart-prev { fill: none; stroke: var(--ink-mute); stroke-width: 1; stroke-dasharray: 3 4; }
+.chart-pt { fill: var(--accent); stroke: var(--bg-soft); stroke-width: 2; }
+.chart-callout { position: absolute; background: var(--bg); border: 1px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 11px; }
+.chart-callout .v { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; color: var(--accent); line-height: 1; }
+.chart-callout .l { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .18em; color: var(--ink-mute); text-transform: uppercase; margin-top: 4px; }
+
+/* === RANKING === */
+.rank-list { display: flex; flex-direction: column; gap: 10px; }
+.rank-item { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.rank-item:hover { border-color: var(--accent-soft); }
+.rank-pos { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 24px; color: var(--accent); line-height: 1; font-weight: 600; }
+.rank-pos.gold { color: var(--hl); }
+.rank-name { font-family: "Cormorant Garamond", serif; font-size: 17px; font-weight: 600; line-height: 1.1; }
+.rank-meta { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .1em; color: var(--ink-mute); margin-top: 2px; text-transform: uppercase; }
+.rank-bar { width: 80px; height: 6px; background: var(--bg-elev); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.rank-bar .fill { height: 100%; background: var(--accent); border-radius: 3px; }
+.rank-val { text-align: right; }
+.rank-val .v { font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 600; line-height: 1; }
+.rank-val .pct { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ok); }
+.rank-val .pct.dn { color: var(--danger); }
+
+/* === LIVE FEED === */
+.feed { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+.feed-item { display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; padding: 10px 0; align-items: center; border-bottom: 1px dashed var(--rule); font-size: 13px; }
+.feed-item:last-child { border-bottom: none; }
+.feed-pip { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-left: 4px; }
+.feed-pip.ok { background: var(--ok); }
+.feed-pip.warn { background: var(--warn); }
+.feed-pip.danger { background: var(--danger); }
+.feed-text { color: var(--ink-soft); }
+.feed-text strong { color: var(--ink); font-weight: 600; }
+.feed-time { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: .06em; }
+
+/* === APPOINTMENTS BOARD === */
+.appt-board { display: flex; flex-direction: column; gap: 6px; }
+.appt-row { display: grid; grid-template-columns: 50px 1fr; gap: 12px; align-items: center; }
+.appt-hour { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); letter-spacing: .04em; text-align: right; padding-right: 8px; border-right: 1px solid var(--rule); }
+.appt-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.appt-slot { padding: 7px 10px; border-radius: 4px; font-size: 11.5px; display: flex; flex-direction: column; gap: 2px; min-height: 38px; border: 1px solid var(--rule); background: var(--bg); }
+.appt-slot.filled { background: color-mix(in oklab, var(--accent) 16%, transparent); border-color: var(--accent-soft); color: var(--accent); }
+.appt-slot.filled .who { font-family: "Cormorant Garamond", serif; font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1; }
+.appt-slot.filled .svc { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .12em; color: var(--ink-mute); text-transform: uppercase; }
+.appt-slot.now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 12px -2px color-mix(in oklab, var(--accent) 60%, transparent); }
+.appt-slot.empty { color: var(--ink-mute); font-family: "JetBrains Mono", monospace; font-size: 10px; align-items: center; justify-content: center; display: flex; }
+.appt-cols-head { display: grid; grid-template-columns: 50px 1fr; gap: 12px; padding-bottom: 8px; }
+.appt-cols-head .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.appt-cols-head .col-name { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); padding: 0 10px; display: flex; align-items: center; justify-content: space-between; }
+.appt-cols-head .col-name .ind { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* === ESTOQUE === */
+.stock-list { display: flex; flex-direction: column; gap: 8px; }
+.stock-item { display: grid; grid-template-columns: 1fr 60px; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); }
+.stock-name { font-family: "Cormorant Garamond", serif; font-size: 15px; font-weight: 600; line-height: 1.1; }
+.stock-meta { font-family: "JetBrains Mono", monospace; font-size: 9.5px; letter-spacing: .12em; color: var(--ink-mute); text-transform: uppercase; margin-top: 2px; }
+.stock-progress { height: 5px; background: var(--bg-elev); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.stock-progress .fill { height: 100%; border-radius: 3px; background: var(--ok); }
+.stock-progress .fill.warn { background: var(--warn); }
+.stock-progress .fill.danger { background: var(--danger); }
+.stock-qty { font-family: "JetBrains Mono", monospace; font-size: 18px; font-weight: 600; text-align: right; line-height: 1; }
+.stock-qty .x { font-size: 10px; color: var(--ink-mute); }
+
+/* === DONUT === */
+.donut-wrap { display: grid; grid-template-columns: 130px 1fr; gap: 18px; align-items: center; }
+.donut { width: 130px; height: 130px; position: relative; }
+.donut .center { position: absolute; inset: 0; display: grid; place-items: center; }
+.donut .center .v { font-family: "Cormorant Garamond", serif; font-size: 30px; font-weight: 600; line-height: 1; }
+.donut .center .l { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .16em; color: var(--ink-mute); text-transform: uppercase; margin-top: 2px; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+.donut-legend .row { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; }
+.donut-legend .row .sw { width: 10px; height: 10px; border-radius: 2px; }
+.donut-legend .row .nm { color: var(--ink-soft); }
+.donut-legend .row .pc { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink); }
+
+/* === AI INSIGHTS === */
+.ai-card { background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 8%, var(--bg-soft)), var(--bg-soft)); border: 1px solid color-mix(in oklab, var(--accent) 30%, var(--rule)); }
+.ai-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: color-mix(in oklab, var(--accent) 18%, transparent); color: var(--accent); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; }
+.ai-tag .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); position: relative; }
+.ai-tag .pulse::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid var(--accent); animation: aip 2s ease-out infinite; }
+@keyframes aip { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+.ai-quote { font-family: "Cormorant Garamond", serif; font-size: 22px; line-height: 1.3; margin: 0; }
+.ai-quote .hl { color: var(--accent); font-style: italic; }
+.ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.skip-link { position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: 4px; z-index: 100; font-weight: 600; }
+.skip-link:focus { left: 8px; }
+
+@media (max-width: 1200px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: -100%; top: 0; width: var(--sidebar-w); z-index: 99; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-main, .grid-sub { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-theme="classico">
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<div class="app">
+  <aside class="sidebar" aria-label="Navegação lateral">
+    <div class="sb-brand">
+      <div class="mini-mark" aria-hidden="true">N</div>
+      <div>
+        <div class="brand-word">NAVALHA</div>
+        <div class="brand-sub">Painel · Dono</div>
+      </div>
+    </div>
+
+    <div class="sb-unit">
+      <button class="sb-unit-picker" aria-label="Trocar unidade">
+        <span class="unit-dot"></span>
+        <span class="unit-info">
+          <span class="unit-name">Vila Madalena</span>
+          <span class="unit-meta">SP · 4 cadeiras · #001</span>
+        </span>
+        <span class="unit-arrow">⌄</span>
+      </button>
+    </div>
+
+    <nav class="sb-nav" aria-label="Seções do painel">
+      <div class="sb-section">Operação</div>
+      <a class="sb-item active" href="#"><span class="glyph">V</span> Visão geral</a>
+      <a class="sb-item" href="#"><span class="glyph">A</span> Agenda <span class="badge-n">12</span></a>
+      <a class="sb-item" href="#"><span class="glyph">C</span> Caixa</a>
+      <a class="sb-item" href="#"><span class="glyph">E</span> Estoque <span class="badge-n">3</span></a>
+
+      <div class="sb-section">Pessoas</div>
+      <a class="sb-item" href="#"><span class="glyph">B</span> Equipe</a>
+      <a class="sb-item" href="#"><span class="glyph">K</span> Clientes</a>
+      <a class="sb-item" href="#"><span class="glyph">$</span> Comissões</a>
+      <a class="sb-item" href="#"><span class="glyph">S</span> Clube</a>
+
+      <div class="sb-section">Negócio</div>
+      <a class="sb-item" href="#"><span class="glyph">F</span> Financeiro</a>
+      <a class="sb-item" href="#"><span class="glyph">R</span> Relatórios</a>
+      <a class="sb-item" href="#"><span class="glyph">M</span> Multi-unidade</a>
+      <a class="sb-item" href="#"><span class="glyph">P</span> Marketing</a>
+
+      <div class="sb-section">Sistema</div>
+      <a class="sb-item" href="#"><span class="glyph">⚙</span> Configurações</a>
+      <a class="sb-item" href="index.html"><span class="glyph">←</span> Brand Guide</a>
+    </nav>
+
+    <div class="sb-foot">
+      <div class="avatar">A</div>
+      <div class="me">
+        <div class="nm">Augusto Vianna</div>
+        <div class="rl">Proprietário</div>
+      </div>
+      <span class="mono" style="font-size: 14px; color: var(--ink-mute);">⌄</span>
+    </div>
+  </aside>
+
+  <div class="main" id="main">
+    <header class="topbar">
+      <label class="search">
+        <span class="icon">⌕</span>
+        <input type="search" placeholder="Buscar cliente, barbeiro, serviço…" aria-label="Buscar" />
+        <span class="kbd">⌘K</span>
+      </label>
+      <div class="spacer"></div>
+      <span class="pill live"><span class="live-dot"></span> 3 em atendimento</span>
+      <div class="theme-dots" role="group" aria-label="Tema visual">
+        <button class="theme-dot" data-theme-btn="classico" aria-pressed="true" aria-label="Clássico"><span class="sw" style="background: #C9A35E"></span></button>
+        <button class="theme-dot" data-theme-btn="moderno" aria-pressed="false" aria-label="Moderno"><span class="sw" style="background: #00C896"></span></button>
+        <button class="theme-dot" data-theme-btn="terra" aria-pressed="false" aria-label="Terra"><span class="sw" style="background: #2A4A3B"></span></button>
+      </div>
+      <button class="icon-btn" aria-label="Notificações">🔔<span class="dot" aria-hidden="true"></span></button>
+      <button class="icon-btn" aria-label="Ajuda">?</button>
+    </header>
+
+    <div class="page-head">
+      <div>
+        <div class="crumb">Operação · Visão geral · Outubro 2026</div>
+        <h1>Bom dia, <span class="it">Augusto</span>.</h1>
+        <p class="ph-sub">Sua barbearia rodou +24% vs. setembro. Aqui está o resumo.</p>
+      </div>
+      <div class="ph-actions">
+        <div class="date-picker" role="group" aria-label="Período">
+          <button>Hoje</button>
+          <button>7d</button>
+          <button aria-pressed="true">30d</button>
+          <button>YTD</button>
+        </div>
+        <button class="btn">↓ Exportar</button>
+        <button class="btn btn-primary">+ Novo agendamento <span class="kb">N</span></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- KPI ROW -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-head"><span class="kpi-label">Receita do mês</span><span class="kpi-trend up">↑ 24.2%</span></div>
+          <div class="kpi-value"><span class="cur">R$</span>42<span class="sub">.380</span></div>
+          <div class="kpi-meta">vs. R$ 34.120 em setembro</div>
+          <div class="kpi-spark" aria-hidden="true">
+            <div class="b" style="height: 30%"></div><div class="b" style="height: 42%"></div><div class="b" style="height: 38%"></div><div class="b" style="height: 56%"></div><div class="b" style="height: 50%"></div><div class="b" style="height: 68%"></div><div class="b" style="height: 78%"></div><div class="b" style="height: 64%"></div><div class="b" style="height: 84%"></div><div class="b" style="height: 72%"></div><div class="b" style="height: 92%"></div><div class="b hi" style="height: 100%"></div>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-head"><span class="kpi-label">Ocupação de cadeira</span><span class="kpi-trend up">↑ 4pp</span></div>
+          <div class="kpi-value">87<span class="sub">%</span></div>
+          <div class="kpi-meta">meta 80% · pico 96% sábado</div>
+          <div class="kpi-spark" aria-hidden="true">
+            <div class="b" style="height: 60%"></div><div class="b" style="height: 70%"></div><div class="b" style="height: 65%"></div><div class="b" style="height: 78%"></div><div class="b" style="height: 82%"></div><div class="b" style="height: 88%"></div><div class="b hi" style="height: 96%"></div><div class="b" style="height: 84%"></div><div class="b" style="height: 76%"></div><div class="b" style="height: 80%"></div><div class="b" style="height: 88%"></div><div class="b" style="height: 92%"></div>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-head"><span class="kpi-label">Ticket médio</span><span class="kpi-trend up">↑ 8.4%</span></div>
+          <div class="kpi-value"><span class="cur">R$</span>72<span class="sub">,40</span></div>
+          <div class="kpi-meta">589 atendimentos · +12 vs set.</div>
+          <div class="kpi-spark" aria-hidden="true">
+            <div class="b" style="height: 56%"></div><div class="b" style="height: 60%"></div><div class="b" style="height: 58%"></div><div class="b" style="height: 64%"></div><div class="b" style="height: 70%"></div><div class="b" style="height: 68%"></div><div class="b" style="height: 76%"></div><div class="b" style="height: 80%"></div><div class="b" style="height: 78%"></div><div class="b" style="height: 84%"></div><div class="b" style="height: 88%"></div><div class="b hi" style="height: 92%"></div>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-head"><span class="kpi-label">No-show</span><span class="kpi-trend up">↓ 68%</span></div>
+          <div class="kpi-value">2.1<span class="sub">%</span></div>
+          <div class="kpi-meta">IA preveniu 18 faltas este mês</div>
+          <div class="kpi-spark" aria-hidden="true">
+            <div class="b" style="height: 90%"></div><div class="b" style="height: 80%"></div><div class="b" style="height: 84%"></div><div class="b" style="height: 70%"></div><div class="b" style="height: 60%"></div><div class="b" style="height: 50%"></div><div class="b" style="height: 42%"></div><div class="b" style="height: 38%"></div><div class="b" style="height: 30%"></div><div class="b" style="height: 24%"></div><div class="b" style="height: 18%"></div><div class="b hi" style="height: 12%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI INSIGHT -->
+      <div class="card ai-card">
+        <div class="card-head">
+          <span class="ai-tag"><span class="pulse"></span> Navalha IA · Insight de hoje</span>
+          <div class="card-tools"><button>Dispensar</button></div>
+        </div>
+        <p class="ai-quote">Você está perdendo cerca de <span class="hl">R$ 1.840 por mês</span> entre 14h e 16h às terças. Sugiro abrir o turno do <span class="hl">Bruno Mello</span> nesse horário — ele tem 92% de retenção e fila de espera às quintas.</p>
+        <div class="ai-actions">
+          <button class="btn btn-primary">Aplicar sugestão</button>
+          <button class="btn">Ver projeção completa</button>
+          <button class="btn">Próximo insight →</button>
+        </div>
+      </div>
+
+      <!-- CHART + RANKING -->
+      <div class="grid-main">
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Receita · diária <span class="meta">OUT 2026 · vs SET</span></h2>
+            <div class="card-tools">
+              <button aria-pressed="true">Diário</button>
+              <button>Semanal</button>
+              <button>Mensal</button>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span><span class="dot" style="background: var(--accent);"></span> Outubro</span>
+            <span><span class="dot" style="background: var(--ink-mute); height: 2px;"></span> Setembro (comparativo)</span>
+          </div>
+          <div class="chart-wrap">
+            <svg class="chart-svg" viewBox="0 0 600 240" preserveAspectRatio="none" aria-label="Gráfico de receita diária">
+              <defs>
+                <linearGradient id="area-fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g class="chart-grid">
+                <line x1="40" y1="20" x2="600" y2="20"/>
+                <line x1="40" y1="70" x2="600" y2="70"/>
+                <line x1="40" y1="120" x2="600" y2="120"/>
+                <line x1="40" y1="170" x2="600" y2="170"/>
+                <line x1="40" y1="220" x2="600" y2="220"/>
+              </g>
+              <g class="chart-axis">
+                <text x="38" y="24" text-anchor="end">5K</text>
+                <text x="38" y="74" text-anchor="end">4K</text>
+                <text x="38" y="124" text-anchor="end">3K</text>
+                <text x="38" y="174" text-anchor="end">2K</text>
+                <text x="38" y="224" text-anchor="end">1K</text>
+                <text x="60" y="236">01</text>
+                <text x="155" y="236">07</text>
+                <text x="250" y="236">14</text>
+                <text x="345" y="236">21</text>
+                <text x="440" y="236">28</text>
+                <text x="555" y="236">30</text>
+              </g>
+              <!-- previous month -->
+              <path class="chart-prev" d="M 60 180 L 100 168 L 140 174 L 180 152 L 220 160 L 260 140 L 300 132 L 340 138 L 380 118 L 420 124 L 460 102 L 500 96 L 540 110 L 580 88"/>
+              <!-- current month -->
+              <path class="chart-area" d="M 60 168 L 100 150 L 140 144 L 180 130 L 220 138 L 260 110 L 300 102 L 340 88 L 380 96 L 420 70 L 460 62 L 500 50 L 540 70 L 580 38 L 580 240 L 60 240 Z"/>
+              <path class="chart-line" d="M 60 168 L 100 150 L 140 144 L 180 130 L 220 138 L 260 110 L 300 102 L 340 88 L 380 96 L 420 70 L 460 62 L 500 50 L 540 70 L 580 38"/>
+              <circle cx="580" cy="38" r="5" class="chart-pt"/>
+              <circle cx="500" cy="50" r="4" class="chart-pt"/>
+            </svg>
+            <div class="chart-callout" style="top: 26px; right: 18px;">
+              <div class="v">R$ 4.620</div>
+              <div class="l">Ontem · 30/Out</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Top barbeiros <span class="meta">RANKING DO MÊS</span></h2>
+            <div class="card-tools"><button>Ver tudo →</button></div>
+          </div>
+          <div class="rank-list">
+            <div class="rank-item">
+              <div class="rank-pos gold">1</div>
+              <div>
+                <div class="rank-name">Rafael Santos</div>
+                <div class="rank-meta">142 cortes · 92% ocup. · 4.9★</div>
+                <div class="rank-bar"><div class="fill" style="width: 100%;"></div></div>
+              </div>
+              <div class="rank-val">
+                <div class="v">R$ 12.4k</div>
+                <div class="pct">+18%</div>
+              </div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">2</div>
+              <div>
+                <div class="rank-name">Bruno Mello</div>
+                <div class="rank-meta">118 cortes · 84% ocup. · 4.8★</div>
+                <div class="rank-bar"><div class="fill" style="width: 79%;"></div></div>
+              </div>
+              <div class="rank-val">
+                <div class="v">R$ 9.8k</div>
+                <div class="pct">+9%</div>
+              </div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">3</div>
+              <div>
+                <div class="rank-name">Diego Pacheco</div>
+                <div class="rank-meta">96 cortes · 76% ocup. · 4.7★</div>
+                <div class="rank-bar"><div class="fill" style="width: 62%;"></div></div>
+              </div>
+              <div class="rank-val">
+                <div class="v">R$ 7.8k</div>
+                <div class="pct">+3%</div>
+              </div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">4</div>
+              <div>
+                <div class="rank-name">Caio Henrique</div>
+                <div class="rank-meta">82 cortes · 68% ocup. · 4.6★</div>
+                <div class="rank-bar"><div class="fill" style="width: 51%;"></div></div>
+              </div>
+              <div class="rank-val">
+                <div class="v">R$ 6.4k</div>
+                <div class="pct dn">−2%</div>
+              </div>
+            </div>
+            <div class="rank-item">
+              <div class="rank-pos">5</div>
+              <div>
+                <div class="rank-name">Luan Alves</div>
+                <div class="rank-meta">64 cortes · 54% ocup. · 4.5★</div>
+                <div class="rank-bar"><div class="fill" style="width: 38%;"></div></div>
+              </div>
+              <div class="rank-val">
+                <div class="v">R$ 5.1k</div>
+                <div class="pct">+5%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY'S BOARD + FEED -->
+      <div class="grid-main">
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Agenda · agora <span class="meta">QUINTA · 21/OUT</span></h2>
+            <div class="card-tools">
+              <button>Ver completa →</button>
+            </div>
+          </div>
+          <div class="appt-cols-head">
+            <div></div>
+            <div class="cols">
+              <div class="col-name">Rafael S. <span class="ind"></span></div>
+              <div class="col-name">Bruno M. <span class="ind" style="background: var(--ok);"></span></div>
+              <div class="col-name">Diego P. <span class="ind" style="background: var(--warn);"></span></div>
+            </div>
+          </div>
+          <div class="appt-board">
+            <div class="appt-row">
+              <div class="appt-hour">14:00</div>
+              <div class="appt-slots">
+                <div class="appt-slot filled"><span class="who">Pedro M.</span><span class="svc">Corte</span></div>
+                <div class="appt-slot filled"><span class="who">Tiago F.</span><span class="svc">Barba</span></div>
+                <div class="appt-slot empty">livre</div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-hour">14:30</div>
+              <div class="appt-slots">
+                <div class="appt-slot filled now"><span class="who">Ricardo A. •</span><span class="svc">Corte+barba</span></div>
+                <div class="appt-slot filled"><span class="who">Anderson L.</span><span class="svc">Visagismo</span></div>
+                <div class="appt-slot filled"><span class="who">Murilo C.</span><span class="svc">Corte</span></div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-hour">15:00</div>
+              <div class="appt-slots">
+                <div class="appt-slot filled"><span class="who">João M.</span><span class="svc">Visagismo</span></div>
+                <div class="appt-slot filled"><span class="who">Carlos R.</span><span class="svc">Corte+barba</span></div>
+                <div class="appt-slot empty">livre</div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-hour">15:30</div>
+              <div class="appt-slots">
+                <div class="appt-slot empty">livre</div>
+                <div class="appt-slot filled"><span class="who">Yuri B.</span><span class="svc">Corte</span></div>
+                <div class="appt-slot filled"><span class="who">Felipe G.</span><span class="svc">Barba</span></div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-hour">16:00</div>
+              <div class="appt-slots">
+                <div class="appt-slot filled"><span class="who">Lucas A.</span><span class="svc">Corte</span></div>
+                <div class="appt-slot empty">livre</div>
+                <div class="appt-slot filled"><span class="who">Renan T.</span><span class="svc">Corte+barba</span></div>
+              </div>
+            </div>
+            <div class="appt-row">
+              <div class="appt-hour">16:30</div>
+              <div class="appt-slots">
+                <div class="appt-slot filled"><span class="who">Heitor Q.</span><span class="svc">Visagismo</span></div>
+                <div class="appt-slot filled"><span class="who">Igor S.</span><span class="svc">Corte</span></div>
+                <div class="appt-slot filled"><span class="who">Wilson N.</span><span class="svc">Barba</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Atividade · ao vivo</h2>
+            <div class="card-tools"><span class="mono" style="color: var(--ok); font-size: 10px;">● LIVE</span></div>
+          </div>
+          <div class="feed">
+            <div class="feed-item"><span class="feed-pip ok"></span><span class="feed-text"><strong>Ricardo A.</strong> fez check-in com Rafael</span><span class="feed-time">14:30</span></div>
+            <div class="feed-item"><span class="feed-pip"></span><span class="feed-text"><strong>João M.</strong> confirmou agendamento via WhatsApp</span><span class="feed-time">14:28</span></div>
+            <div class="feed-item"><span class="feed-pip ok"></span><span class="feed-text">Pix recebido · <strong>R$ 80,00</strong> de Murilo C.</span><span class="feed-time">14:26</span></div>
+            <div class="feed-item"><span class="feed-pip"></span><span class="feed-text"><strong>Marcos T.</strong> entrou no clube · plano mensal</span><span class="feed-time">14:20</span></div>
+            <div class="feed-item"><span class="feed-pip warn"></span><span class="feed-text">IA detectou risco de no-show: <strong>Felipe G. 15:30</strong></span><span class="feed-time">14:15</span></div>
+            <div class="feed-item"><span class="feed-pip ok"></span><span class="feed-text">Caixa fechado · turno manhã · <strong>R$ 1.840</strong></span><span class="feed-time">13:50</span></div>
+            <div class="feed-item"><span class="feed-pip"></span><span class="feed-text">3 novos agendamentos para sábado via marketplace</span><span class="feed-time">13:42</span></div>
+            <div class="feed-item"><span class="feed-pip danger"></span><span class="feed-text">Estoque baixo · <strong>Pomada Hard Wax</strong></span><span class="feed-time">13:30</span></div>
+            <div class="feed-item"><span class="feed-pip"></span><span class="feed-text"><strong>Bruno M.</strong> registrou comissão · R$ 48,00</span><span class="feed-time">13:18</span></div>
+            <div class="feed-item"><span class="feed-pip ok"></span><span class="feed-text">Avaliação 5★ recebida · "Ficou perfeito, voltarei"</span><span class="feed-time">13:00</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB CARDS -->
+      <div class="grid-sub">
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Mix de serviços</h2>
+            <div class="card-tools"><button>30d</button></div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut" viewBox="0 0 36 36" aria-label="Distribuição de serviços">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--bg-elev)" stroke-width="3.5"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="48 100" stroke-dashoffset="25" stroke-linecap="butt" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--accent-soft)" stroke-width="3.5" stroke-dasharray="28 100" stroke-dashoffset="-23" stroke-linecap="butt" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--ok)" stroke-width="3.5" stroke-dasharray="14 100" stroke-dashoffset="-51" stroke-linecap="butt" transform="rotate(-90 18 18)"/>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--ink-mute)" stroke-width="3.5" stroke-dasharray="10 100" stroke-dashoffset="-65" stroke-linecap="butt" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="donut" style="position: absolute; pointer-events: none;"></div>
+            <div class="donut-legend">
+              <div class="row"><span class="sw" style="background: var(--accent);"></span><span class="nm">Corte+Barba</span><span class="pc">48%</span></div>
+              <div class="row"><span class="sw" style="background: var(--accent-soft);"></span><span class="nm">Corte simples</span><span class="pc">28%</span></div>
+              <div class="row"><span class="sw" style="background: var(--ok);"></span><span class="nm">Visagismo</span><span class="pc">14%</span></div>
+              <div class="row"><span class="sw" style="background: var(--ink-mute);"></span><span class="nm">Outros</span><span class="pc">10%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Estoque <span class="meta">3 ALERTAS</span></h2>
+            <div class="card-tools"><button>Pedir →</button></div>
+          </div>
+          <div class="stock-list">
+            <div class="stock-item">
+              <div>
+                <div class="stock-name">Pomada Hard Wax</div>
+                <div class="stock-meta">Marca · K&K · 80g</div>
+                <div class="stock-progress"><div class="fill danger" style="width: 12%"></div></div>
+              </div>
+              <div class="stock-qty">3<span class="x">/24</span></div>
+            </div>
+            <div class="stock-item">
+              <div>
+                <div class="stock-name">Óleo de barba</div>
+                <div class="stock-meta">Marca · Tonsor · 30ml</div>
+                <div class="stock-progress"><div class="fill warn" style="width: 32%"></div></div>
+              </div>
+              <div class="stock-qty">8<span class="x">/25</span></div>
+            </div>
+            <div class="stock-item">
+              <div>
+                <div class="stock-name">Lâminas descartáveis</div>
+                <div class="stock-meta">Cx · 100un</div>
+                <div class="stock-progress"><div class="fill warn" style="width: 28%"></div></div>
+              </div>
+              <div class="stock-qty">28<span class="x">/100</span></div>
+            </div>
+            <div class="stock-item">
+              <div>
+                <div class="stock-name">Shampoo profissional</div>
+                <div class="stock-meta">1L · galão</div>
+                <div class="stock-progress"><div class="fill" style="width: 78%"></div></div>
+              </div>
+              <div class="stock-qty">8<span class="x">/10</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">Clube · membros</h2>
+            <div class="card-tools"><button>Ver tudo →</button></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; padding-bottom: 14px; border-bottom: 1px dashed var(--rule);">
+              <div>
+                <div class="kpi-label" style="margin-bottom: 4px;">Receita recorrente · MRR</div>
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; line-height: 1;"><span style="font-size: 18px; color: var(--ink-mute);">R$</span> 8.420</div>
+              </div>
+              <span class="kpi-trend up">↑ 12.4%</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div style="padding: 12px; border: 1px solid var(--rule); border-radius: 6px;">
+                <div class="kpi-label" style="margin-bottom: 6px;">Membros ativos</div>
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; line-height: 1;">84</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ok); margin-top: 4px;">+9 esta semana</div>
+              </div>
+              <div style="padding: 12px; border: 1px solid var(--rule); border-radius: 6px;">
+                <div class="kpi-label" style="margin-bottom: 6px;">Churn 30d</div>
+                <div style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; line-height: 1;">2.4<span style="font-size: 18px; color: var(--ink-mute);">%</span></div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ok); margin-top: 4px;">−1.1pp vs mês</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 999px; background: color-mix(in oklab, var(--accent) 18%, transparent); color: var(--accent); letter-spacing: .12em;">PLATINUM · 18</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 999px; background: var(--bg-elev); color: var(--ink-soft); letter-spacing: .12em;">OURO · 32</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 999px; background: var(--bg-elev); color: var(--ink-soft); letter-spacing: .12em;">PRATA · 34</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const THEMES = ['classico', 'moderno', 'terra'];
+function applyTheme(name) {
+  document.body.setAttribute('data-theme', name);
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeBtn === name ? 'true' : 'false'));
+  try { localStorage.setItem('navalha-theme', name); } catch(e) {}
+}
+document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeBtn)));
+try { const s = localStorage.getItem('navalha-theme'); if (s && THEMES.includes(s)) applyTheme(s); else applyTheme('classico'); } catch(e) { applyTheme('classico'); }
+
+// Date picker visual toggle
+document.querySelectorAll('.date-picker').forEach(grp => {
+  grp.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      grp.querySelectorAll('button').forEach(x => x.removeAttribute('aria-pressed'));
+      b.setAttribute('aria-pressed', 'true');
+    });
+  });
+});
+// Card tool toggles
+document.querySelectorAll('.card-tools').forEach(grp => {
+  grp.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.textContent.match(/^(Diário|Semanal|Mensal|7d|30d)$/)) {
+        [...grp.querySelectorAll('button')].filter(x => x.textContent.match(/^(Diário|Semanal|Mensal|7d|30d)$/)).forEach(x => x.removeAttribute('aria-pressed'));
+        b.setAttribute('aria-pressed', 'true');
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Navalha — Brand Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ============ DESIGN TOKENS ============ */
+:root {
+  /* Theme: CLÁSSICO (default) — preto profundo, latão, creme */
+  --bg: #0F0D0A;
+  --bg-soft: #15120E;
+  --bg-elev: #1C1813;
+  --ink: #F2EBDC;
+  --ink-soft: #C9C0AC;
+  --ink-mute: #8A8170;
+  --rule: #2A241B;
+  --accent: #C9A35E;       /* latão */
+  --accent-soft: #8C6F3A;
+  --accent-ink: #0F0D0A;
+  --hl: #E8C97A;
+  --danger: #C9533E;
+  --ok: #7BA776;
+}
+[data-theme="moderno"] {
+  --bg: #0B1116;
+  --bg-soft: #11181F;
+  --bg-elev: #182028;
+  --ink: #ECF1F4;
+  --ink-soft: #B6C2CB;
+  --ink-mute: #6E7C86;
+  --rule: #1F2A33;
+  --accent: #00C896;       /* teal elétrico */
+  --accent-soft: #027E60;
+  --accent-ink: #08110D;
+  --hl: #2DE3B1;
+}
+[data-theme="terra"] {
+  --bg: #F1ECE3;
+  --bg-soft: #E8E1D2;
+  --bg-elev: #FFFFFF;
+  --ink: #1A1614;
+  --ink-soft: #4A413A;
+  --ink-mute: #7A6F62;
+  --rule: #D5CCB9;
+  --accent: #2A4A3B;       /* forest */
+  --accent-soft: #8B5A2B;
+  --accent-ink: #F1ECE3;
+  --hl: #C46A2A;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background .4s ease, color .4s ease;
+}
+.serif { font-family: "Cormorant Garamond", "Times New Roman", serif; }
+.mono  { font-family: "JetBrains Mono", ui-monospace, monospace; }
+.italic { font-style: italic; }
+.upper { text-transform: uppercase; letter-spacing: .18em; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+a { color: inherit; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* ============ LAYOUT ============ */
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+.row { display: flex; }
+.col { display: flex; flex-direction: column; }
+
+.rule { height: 1px; background: var(--rule); margin: 24px 0; }
+.dbl-rule { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 6px 0; }
+
+/* ============ TOP BAR ============ */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 14px 48px;
+  gap: 24px;
+}
+.tb-left { display: flex; align-items: center; gap: 14px; }
+.tb-center { display: flex; align-items: center; gap: 4px; font-size: 12.5px; }
+.tb-right { display: flex; justify-content: flex-end; align-items: center; gap: 12px; font-size: 12px; }
+.tb-link {
+  padding: 8px 12px; border-radius: 4px;
+  text-decoration: none; color: var(--ink-soft);
+  letter-spacing: .14em; text-transform: uppercase; font-size: 11px; font-weight: 500;
+  transition: color .2s, background .2s;
+}
+.tb-link:hover, .tb-link:focus-visible { color: var(--ink); background: var(--bg-soft); outline: none; }
+.tb-link[aria-current="page"] { color: var(--accent); }
+
+.mini-mark {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--accent);
+  display: grid; place-items: center;
+  color: var(--accent); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px;
+  line-height: 1;
+}
+.brand-word { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 22px; letter-spacing: .16em; }
+
+/* theme picker dots */
+.theme-dots { display: flex; gap: 6px; }
+.theme-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--rule);
+  display: grid; place-items: center;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+.theme-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-dot[aria-pressed="true"] { border-color: var(--accent); }
+.theme-dot .swatch { width: 14px; height: 14px; border-radius: 50%; padding: 0; min-height: 0; display: block; border: none; }
+
+/* ============ HERO ============ */
+.hero {
+  padding: 90px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--ink-mute); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .24em;
+}
+.hero-eyebrow .dash { flex: 0 0 28px; height: 1px; background: var(--accent); }
+.hero-title {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 500;
+  font-size: clamp(72px, 11vw, 168px);
+  line-height: .88;
+  letter-spacing: -.01em;
+  margin: 24px 0 12px;
+}
+.hero-title .it { font-style: italic; color: var(--accent); }
+.hero-sub {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 26px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  max-width: 520px;
+  margin: 0;
+}
+.hero-meta {
+  margin-top: 36px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  border-top: 1px solid var(--rule);
+  padding-top: 18px;
+}
+.hero-meta dt { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 6px; font-family: "JetBrains Mono", monospace; }
+.hero-meta dd { margin: 0; font-size: 14px; }
+
+/* Hero right — emblem panel */
+.emblem-panel {
+  aspect-ratio: 1 / 1.05;
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  display: grid; place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.emblem-panel::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 50%),
+    radial-gradient(circle at 80% 80%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 50%);
+  pointer-events: none;
+}
+.emblem-corner {
+  position: absolute; font-family: "JetBrains Mono", monospace;
+  font-size: 10px; letter-spacing: .2em; color: var(--ink-mute);
+  text-transform: uppercase;
+}
+.emblem-corner.tl { top: 16px; left: 16px; }
+.emblem-corner.tr { top: 16px; right: 16px; }
+.emblem-corner.bl { bottom: 16px; left: 16px; }
+.emblem-corner.br { bottom: 16px; right: 16px; }
+.emblem-svg { width: 70%; max-width: 380px; color: var(--accent); position: relative; }
+
+/* tickers - barber pole stripe */
+.pole-stripe {
+  height: 6px; width: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 12px,
+    var(--bg-soft) 12px 24px,
+    var(--ink) 24px 36px,
+    var(--bg-soft) 36px 48px
+  );
+  opacity: .85;
+  animation: pole 14s linear infinite;
+  background-size: 200% 100%;
+}
+@keyframes pole {
+  0% { background-position: 0 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ============ SECTIONS ============ */
+section { padding: 96px 0; border-top: 1px solid var(--rule); }
+.section-head {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 64px;
+  margin-bottom: 64px;
+  align-items: end;
+}
+.section-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent);
+}
+.section-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 64px; line-height: .96; font-weight: 500; margin: 12px 0 0;
+}
+.section-title .it { font-style: italic; }
+.section-lead {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 22px; line-height: 1.45;
+  color: var(--ink-soft);
+  max-width: 540px;
+}
+.section-lead p { margin: 0 0 12px; }
+.section-lead p + p { font-style: normal; font-family: "Bricolage Grotesque", sans-serif; font-size: 14.5px; line-height: 1.65; color: var(--ink-mute); }
+
+/* ============ MARK SECTION ============ */
+.mark-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 16px;
+}
+.mark-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 32px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+.mark-card.dark { background: var(--bg); }
+.mark-card.light { background: var(--ink); color: var(--bg); }
+.mark-card .mark-meta {
+  display: flex; justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.mark-card.light .mark-meta { color: color-mix(in oklab, var(--bg) 60%, transparent); }
+.mark-card .mark-render {
+  flex: 1; display: grid; place-items: center;
+  padding: 24px 0;
+}
+.mark-render.wordmark-render {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600;
+  font-size: clamp(36px, 5vw, 62px);
+  letter-spacing: .12em;
+}
+.mark-render.monogram-render {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 140px;
+  line-height: 1;
+  color: var(--accent);
+}
+.mark-card.light .mark-render.monogram-render { color: var(--accent-soft); }
+
+/* construction grid overlay */
+.construction-grid {
+  position: relative;
+  width: 240px; height: 240px;
+}
+.construction-grid .grid-overlay {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--accent) 20%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--accent) 20%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: .5;
+}
+
+/* ============ PALETTE ============ */
+.palette-themes {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  margin-bottom: 48px;
+}
+.theme-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 24px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  transition: border-color .2s, transform .2s;
+}
+.theme-card:hover { border-color: var(--accent); }
+.theme-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.theme-card .theme-name { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+.theme-card .theme-name span:first-child { font-family: "Cormorant Garamond", serif; font-size: 22px; font-weight: 600; }
+.theme-card .theme-name span:last-child { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; color: var(--ink-mute); text-transform: uppercase; }
+.theme-card .theme-swatches { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 6px; height: 56px; border-radius: 4px; overflow: hidden; }
+
+.swatch-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
+}
+.swatch {
+  border-radius: 6px;
+  padding: 18px;
+  min-height: 200px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  border: 1px solid var(--rule);
+}
+.swatch .sw-name { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; }
+.swatch .sw-hex { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .1em; opacity: .85; }
+.swatch .sw-role { font-size: 10px; text-transform: uppercase; letter-spacing: .18em; opacity: .7; margin-bottom: 6px; font-family: "JetBrains Mono", monospace; }
+
+/* ============ TYPOGRAPHY ============ */
+.type-row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
+  align-items: end;
+  padding: 28px 0;
+  border-bottom: 1px dashed var(--rule);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .14em; color: var(--ink-mute); text-transform: uppercase; }
+.type-meta div + div { margin-top: 4px; color: var(--ink-soft); text-transform: none; letter-spacing: .04em; }
+.type-sample { overflow: hidden; }
+
+.spec-d1 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-style: italic; font-size: 120px; line-height: .92; letter-spacing: -.01em; }
+.spec-d2 { font-family: "Cormorant Garamond", serif; font-weight: 500; font-size: 80px; line-height: 1; }
+.spec-h1 { font-family: "Cormorant Garamond", serif; font-weight: 600; font-size: 48px; line-height: 1.05; }
+.spec-h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 26px; letter-spacing: -.005em; }
+.spec-body { font-family: "Bricolage Grotesque", sans-serif; font-size: 16px; line-height: 1.6; max-width: 580px; color: var(--ink-soft); }
+.spec-label { font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-soft); }
+.spec-data { font-family: "JetBrains Mono", monospace; font-size: 22px; font-feature-settings: "tnum"; }
+
+/* ============ VOICE ============ */
+.voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.voice-card {
+  background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 32px; min-height: 220px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.voice-card.do { border-left: 3px solid var(--accent); }
+.voice-card.dont { border-left: 3px solid var(--danger); }
+.voice-tag { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+.voice-tag.do  { color: var(--accent); }
+.voice-tag.dont { color: var(--danger); }
+.voice-quote { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 24px; line-height: 1.35; color: var(--ink); margin: 0; }
+.voice-note { font-size: 13px; color: var(--ink-mute); margin: 0; }
+
+/* ============ MOTIFS ============ */
+.motifs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.motif-card {
+  background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 24px; min-height: 240px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.motif-name { font-family: "Cormorant Garamond", serif; font-size: 20px; font-weight: 600; margin: 0; }
+.motif-desc { font-size: 12px; color: var(--ink-mute); margin: 6px 0 0; font-family: "JetBrains Mono", monospace; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; }
+
+.motif-pole {
+  height: 120px; width: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent) 0 14px,
+    var(--bg) 14px 28px,
+    var(--ink) 28px 42px,
+    var(--bg) 42px 56px
+  );
+  border-radius: 4px;
+}
+.motif-marble {
+  height: 120px; border-radius: 4px;
+  background:
+    radial-gradient(ellipse at 30% 40%, color-mix(in oklab, var(--accent) 30%, transparent), transparent 60%),
+    radial-gradient(ellipse at 70% 70%, color-mix(in oklab, var(--ink) 20%, transparent), transparent 60%),
+    linear-gradient(135deg, var(--bg-elev), var(--bg-soft));
+  position: relative; overflow: hidden;
+}
+.motif-marble::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(8deg, transparent 0 12px, color-mix(in oklab, var(--ink) 6%, transparent) 12px 13px),
+    repeating-linear-gradient(-23deg, transparent 0 18px, color-mix(in oklab, var(--accent) 8%, transparent) 18px 19px);
+}
+.motif-ticket {
+  background: var(--ink); color: var(--bg);
+  border-radius: 4px; padding: 14px 16px;
+  position: relative;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  --notch: 8px;
+  -webkit-mask:
+    radial-gradient(var(--notch) at var(--notch) 50%, transparent 98%, #000) -1px,
+    radial-gradient(var(--notch) at calc(100% - var(--notch)) 50%, transparent 98%, #000) calc(100% + 1px);
+  -webkit-mask-composite: source-in;
+          mask-composite: intersect;
+}
+.motif-ticket .t-row { display: flex; justify-content: space-between; padding: 4px 0; }
+.motif-ticket .t-row + .t-row { border-top: 1px dashed color-mix(in oklab, var(--bg) 40%, transparent); }
+.motif-numbers {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  height: 120px; align-items: center;
+}
+.motif-numbers .n {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 56px; line-height: 1; font-weight: 500;
+  display: grid; place-items: center;
+  background: var(--bg); border: 1px solid var(--rule);
+  border-radius: 4px;
+  height: 100%;
+}
+
+/* ============ COMPONENTS ============ */
+.comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.comp-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 28px;
+  display: flex; flex-direction: column; gap: 20px;
+  min-height: 200px;
+}
+.comp-label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-mute); }
+.comp-stage { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; flex: 1; }
+
+.btn {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 500;
+  letter-spacing: .04em;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none;
+  transition: transform .15s, background .2s, color .2s, border-color .2s;
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--hl); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-dark { background: var(--ink); color: var(--bg); }
+.btn-dark:hover { background: color-mix(in oklab, var(--ink) 88%, var(--accent)); }
+
+.badge {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 3px;
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+.badge.accent { background: color-mix(in oklab, var(--accent) 15%, transparent); color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.badge.ok { background: color-mix(in oklab, var(--ok) 15%, transparent); color: var(--ok); border-color: color-mix(in oklab, var(--ok) 40%, transparent); }
+.badge.danger { background: color-mix(in oklab, var(--danger) 15%, transparent); color: var(--danger); border-color: color-mix(in oklab, var(--danger) 40%, transparent); }
+
+.field {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.field label { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.field input {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  padding: 12px 14px;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+}
+.field input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+
+.appt-card {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px;
+  display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center;
+  min-width: 280px;
+}
+.appt-time { font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 600; text-align: center; padding: 8px 4px; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; line-height: 1.1; }
+.appt-time small { display: block; font-size: 9px; opacity: .7; margin-top: 2px; }
+.appt-name { font-family: "Cormorant Garamond", serif; font-size: 18px; font-weight: 600; line-height: 1.1; }
+.appt-service { font-size: 11px; color: var(--ink-mute); font-family: "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+
+/* ============ APPLICATIONS ============ */
+.app-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+.app-card {
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 28px; min-height: 380px;
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative; overflow: hidden;
+}
+.app-card .app-label { display: flex; justify-content: space-between; }
+.app-card .app-label span:first-child { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.app-card .app-label span:last-child { font-family: "Cormorant Garamond", serif; font-style: italic; color: var(--ink-soft); font-size: 14px; }
+
+.preview-landing {
+  flex: 1; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 22px; display: flex; flex-direction: column; gap: 16px;
+  position: relative; overflow: hidden;
+}
+.preview-landing .pl-nav { display: flex; gap: 16px; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-mute); align-items: center; }
+.preview-landing .pl-nav .nav-logo { color: var(--accent); font-family: "Cormorant Garamond", serif; font-size: 16px; letter-spacing: .14em; text-transform: none; font-style: normal; font-weight: 600; }
+.preview-landing .pl-title { font-family: "Cormorant Garamond", serif; font-size: 56px; font-weight: 500; line-height: .94; margin-top: 24px; }
+.preview-landing .pl-title em { color: var(--accent); }
+.preview-landing .pl-sub { color: var(--ink-soft); font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 16px; max-width: 360px; }
+.preview-landing .pl-btn { display: inline-flex; align-self: flex-start; }
+
+.preview-mobile {
+  flex: 1; align-self: center;
+  width: 220px; height: 460px;
+  background: var(--bg); border: 8px solid var(--bg-elev); border-radius: 32px;
+  padding: 20px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative;
+  box-shadow: 0 30px 80px -30px color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.preview-mobile .pm-time { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-mute); text-align: center; }
+.preview-mobile .pm-greeting { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 22px; line-height: 1.1; }
+.preview-mobile .pm-card { background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.preview-mobile .pm-card .pm-when { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; }
+.preview-mobile .pm-card .pm-svc { font-family: "Cormorant Garamond", serif; font-size: 16px; font-weight: 600; line-height: 1.1; }
+.preview-mobile .pm-card .pm-who { font-size: 11px; color: var(--ink-mute); }
+
+.preview-card-bd {
+  width: 100%; aspect-ratio: 7 / 4;
+  background: var(--ink); color: var(--bg);
+  border-radius: 6px; padding: 24px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.preview-card-bd::after {
+  content: ""; position: absolute; right: -40px; top: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%; border: 1px solid color-mix(in oklab, var(--bg) 12%, transparent);
+}
+.preview-card-bd .cb-name { font-family: "Cormorant Garamond", serif; font-size: 28px; font-weight: 600; line-height: 1.05; }
+.preview-card-bd .cb-role { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; opacity: .7; }
+.preview-card-bd .cb-foot { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .12em; }
+
+.preview-icon {
+  flex: 1; display: grid; place-items: center;
+}
+.preview-icon .icon {
+  width: 140px; height: 140px;
+  background: var(--accent); color: var(--accent-ink);
+  border-radius: 32px;
+  display: grid; place-items: center;
+  font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 500;
+  font-size: 96px; line-height: 1;
+  box-shadow: 0 20px 50px -10px color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+/* ============ ROADMAP ============ */
+.roadmap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.rd-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 24px;
+  min-height: 220px;
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column; justify-content: space-between;
+  transition: border-color .2s, transform .2s, background .2s;
+  position: relative; overflow: hidden;
+}
+.rd-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.rd-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.rd-num { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .2em; color: var(--ink-mute); }
+.rd-title { font-family: "Cormorant Garamond", serif; font-size: 26px; font-weight: 600; line-height: 1.1; margin: 0; }
+.rd-desc { font-size: 12px; color: var(--ink-mute); margin: 0; line-height: 1.5; }
+.rd-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent);
+}
+.rd-status .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.rd-card.future .rd-status { color: var(--ink-mute); }
+.rd-card.future .rd-status .pip { background: var(--ink-mute); }
+
+/* ============ FOOTER ============ */
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 40px 0 60px;
+  margin-top: 40px;
+}
+.foot-grid {
+  display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+}
+.foot-meta { font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-mute); }
+
+/* ============ ACCESSIBILITY ============ */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: absolute; left: -9999px; top: 8px; background: var(--accent); color: var(--accent-ink);
+  padding: 10px 14px; border-radius: 4px; z-index: 100; font-weight: 600;
+}
+.skip-link:focus { left: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pole-stripe { animation: none; }
+  * { transition: none !important; }
+}
+
+@media (max-width: 980px) {
+  .wrap { padding: 0 24px; }
+  .topbar-inner { padding: 12px 24px; grid-template-columns: auto auto; }
+  .tb-center { display: none; }
+  .hero-grid, .section-head, .mark-grid, .palette-themes, .swatch-row, .voice-grid, .motifs-grid, .comp-grid, .app-grid, .roadmap-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 88px; }
+  .section-title { font-size: 44px; }
+  .swatch { min-height: 140px; }
+}
+</style>
+</head>
+<body data-theme="classico">
+
+<a href="#main" class="skip-link">Pular para o conteúdo</a>
+
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <div class="tb-left">
+      <div class="mini-mark" aria-hidden="true">N</div>
+      <div>
+        <div class="brand-word">NAVALHA</div>
+        <div class="mono" style="font-size: 9px; letter-spacing: .22em; color: var(--ink-mute); text-transform: uppercase; margin-top: -2px;">Brand System · v1.0</div>
+      </div>
+    </div>
+    <nav class="tb-center" aria-label="Navegação principal">
+      <a class="tb-link" href="index.html" aria-current="page">Marca</a>
+      <a class="tb-link" href="landing.html">Landing</a>
+      <a class="tb-link" href="dashboard.html">Dono</a>
+      <a class="tb-link" href="barbeiro.html">Barbeiro</a>
+      <a class="tb-link" href="secretaria.html">Secretária</a>
+      <a class="tb-link" href="cliente.html">Cliente</a>
+      <a class="tb-link" href="onboarding.html">Onboarding</a>
+      <a class="tb-link" href="agendamento.html">Agendar</a>
+    </nav>
+    <div class="tb-right">
+      <span class="mono" style="font-size: 10px; letter-spacing: .18em; color: var(--ink-mute); text-transform: uppercase;">Tema</span>
+      <div class="theme-dots" role="group" aria-label="Trocar tema visual">
+        <button class="theme-dot" data-theme-btn="classico" aria-pressed="true" aria-label="Tema clássico (latão)">
+          <span class="swatch" style="background: #C9A35E"></span>
+        </button>
+        <button class="theme-dot" data-theme-btn="moderno" aria-pressed="false" aria-label="Tema moderno (teal)">
+          <span class="swatch" style="background: #00C896"></span>
+        </button>
+        <button class="theme-dot" data-theme-btn="terra" aria-pressed="false" aria-label="Tema terra (verde mata)">
+          <span class="swatch" style="background: #2A4A3B"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="pole-stripe" aria-hidden="true"></div>
+</header>
+
+<main id="main">
+
+<!-- ============== HERO ============== -->
+<section class="hero" style="border-top: none; padding-top: 80px;">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="dash"></span>
+          <span>Brand Guide · 2026 · Vol. I</span>
+        </div>
+        <h1 class="hero-title">
+          Na<span class="it">valha</span>
+        </h1>
+        <p class="hero-sub">A plataforma mais afiada para gerir barbearias modernas — do agendamento ao caixa, da comissão ao cliente fiel.</p>
+        <dl class="hero-meta">
+          <div>
+            <dt>Categoria</dt>
+            <dd>SaaS · Multi-unidade</dd>
+          </div>
+          <div>
+            <dt>Mercado</dt>
+            <dd>Barbearias BR</dd>
+          </div>
+          <div>
+            <dt>Lançamento</dt>
+            <dd class="mono tnum">2026.Q3</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="emblem-panel">
+        <span class="emblem-corner tl">N · 01</span>
+        <span class="emblem-corner tr">MMXXVI</span>
+        <span class="emblem-corner bl">Selo / Primary</span>
+        <span class="emblem-corner br">BR · SP</span>
+
+        <svg class="emblem-svg" viewBox="0 0 240 240" aria-label="Selo Navalha — emblema principal">
+          <defs>
+            <path id="topArc" d="M 30 120 A 90 90 0 0 1 210 120" />
+            <path id="bottomArc" d="M 35 120 A 85 85 0 0 0 205 120" />
+          </defs>
+          <circle cx="120" cy="120" r="110" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="120" cy="120" r="100" fill="none" stroke="currentColor" stroke-width="0.6"/>
+          <text font-size="11.5" letter-spacing="3.4" fill="currentColor" font-family="Cormorant Garamond, serif" font-weight="600">
+            <textPath href="#topArc" startOffset="50%" text-anchor="middle">★ NAVALHA ★ BARBER SYSTEM ★</textPath>
+          </text>
+          <text font-size="9" letter-spacing="2.6" fill="currentColor" font-family="JetBrains Mono, monospace">
+            <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">EST. MMXXVI · SÃO PAULO · BRASIL</textPath>
+          </text>
+          <!-- center monogram -->
+          <text x="120" y="148" font-size="90" font-family="Cormorant Garamond, serif" font-style="italic" font-weight="500" fill="currentColor" text-anchor="middle">N</text>
+          <!-- accent lines -->
+          <line x1="80" y1="168" x2="160" y2="168" stroke="currentColor" stroke-width="0.6"/>
+          <text x="120" y="184" font-size="9" letter-spacing="4" font-family="JetBrains Mono, monospace" fill="currentColor" text-anchor="middle">— Nº 01 —</text>
+          <!-- stars left/right -->
+          <circle cx="44" cy="120" r="1.5" fill="currentColor"/>
+          <circle cx="196" cy="120" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MANIFESTO ============== -->
+<section id="manifesto">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 01 · Manifesto</div>
+        <h2 class="section-title">Afiar é<br/><span class="it">cuidar</span> do detalhe.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Navalha existe porque toda boa barbearia trabalha no detalhe — e gestão também é detalhe.</p>
+        <p>Construímos o sistema operacional das barbearias brasileiras: do agendamento pelo WhatsApp até o fechamento de caixa, da comissão do barbeiro ao programa de fidelidade do cliente. Um software direto, denso em dados e elegante como um salão clássico — porque quem trabalha com lâmina entende que precisão é a forma mais nobre de respeito.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MARK ============== -->
+<section id="mark">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 02 · Marca</div>
+        <h2 class="section-title">A <span class="it">marca</span><br/>e suas variações.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Um selo, um monograma, um wordmark.</p>
+        <p>O selo principal é o cartão de visita da plataforma — usado em coberturas, splash screens, embalagens e momentos cerimoniais. O monograma N é o avatar do produto: ícone de app, favicon, marca d'água. O wordmark NAVALHA carrega o nome em contextos editoriais e publicitários.</p>
+      </div>
+    </div>
+
+    <div class="mark-grid">
+      <div class="mark-card dark">
+        <div class="mark-meta">
+          <span>01 · Selo principal</span>
+          <span>Primary</span>
+        </div>
+        <div class="mark-render" aria-hidden="true">
+          <svg viewBox="0 0 240 240" style="width: 220px; color: var(--accent);">
+            <defs>
+              <path id="topArc2" d="M 30 120 A 90 90 0 0 1 210 120" />
+              <path id="bottomArc2" d="M 35 120 A 85 85 0 0 0 205 120" />
+            </defs>
+            <circle cx="120" cy="120" r="110" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="120" cy="120" r="100" fill="none" stroke="currentColor" stroke-width="0.6"/>
+            <text font-size="11.5" letter-spacing="3.4" fill="currentColor" font-family="Cormorant Garamond, serif" font-weight="600">
+              <textPath href="#topArc2" startOffset="50%" text-anchor="middle">★ NAVALHA ★ BARBER SYSTEM ★</textPath>
+            </text>
+            <text font-size="9" letter-spacing="2.6" fill="currentColor" font-family="JetBrains Mono, monospace">
+              <textPath href="#bottomArc2" startOffset="50%" text-anchor="middle">EST. MMXXVI · SÃO PAULO · BRASIL</textPath>
+            </text>
+            <text x="120" y="148" font-size="90" font-family="Cormorant Garamond, serif" font-style="italic" font-weight="500" fill="currentColor" text-anchor="middle">N</text>
+            <line x1="80" y1="168" x2="160" y2="168" stroke="currentColor" stroke-width="0.6"/>
+            <text x="120" y="184" font-size="9" letter-spacing="4" font-family="JetBrains Mono, monospace" fill="currentColor" text-anchor="middle">— Nº 01 —</text>
+            <circle cx="44" cy="120" r="1.5" fill="currentColor"/>
+            <circle cx="196" cy="120" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="mark-meta">
+          <span>Tamanho mín. 64px</span>
+          <span>SVG · PNG · EPS</span>
+        </div>
+      </div>
+
+      <div class="mark-card">
+        <div class="mark-meta">
+          <span>02 · Monograma</span>
+          <span>Avatar</span>
+        </div>
+        <div class="mark-render monogram-render" aria-hidden="true">N</div>
+        <div class="mark-meta">
+          <span>App icon · Favicon</span>
+          <span>Cormorant · Italic</span>
+        </div>
+      </div>
+
+      <div class="mark-card light">
+        <div class="mark-meta">
+          <span>03 · Wordmark</span>
+          <span>Editorial</span>
+        </div>
+        <div class="mark-render wordmark-render" aria-hidden="true">NAVALHA</div>
+        <div class="mark-meta">
+          <span>Tracking +120</span>
+          <span>Cormorant · 600</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PALETTE ============== -->
+<section id="palette">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 03 · Cor</div>
+        <h2 class="section-title"><span class="it">Três</span> direções,<br/>um sistema.</h2>
+      </div>
+      <div class="section-lead">
+        <p>O cliente escolhe a vibe da sua barbearia — Navalha se adapta.</p>
+        <p>O sistema vem com três temas oficiais que cobrem o espectro das barbearias brasileiras: do salão clássico (Clássico) à barber-tech moderna (Moderno) até o studio artesanal (Terra). Cada tema preserva contraste mínimo AA em todos os pares texto/fundo.</p>
+      </div>
+    </div>
+
+    <div class="palette-themes">
+      <button class="theme-card" data-theme-btn="classico" aria-pressed="true">
+        <div class="theme-name"><span>Clássico</span><span>01 · Padrão</span></div>
+        <div class="theme-swatches">
+          <div style="background: #0F0D0A"></div>
+          <div style="background: #C9A35E"></div>
+          <div style="background: #F2EBDC"></div>
+          <div style="background: #8C6F3A"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--ink-mute); margin: 14px 0 0; line-height: 1.5;">Preto profundo, latão envelhecido, creme. Barbearia tradicional, premium, masculina.</p>
+      </button>
+
+      <button class="theme-card" data-theme-btn="moderno" aria-pressed="false">
+        <div class="theme-name"><span>Moderno</span><span>02 · Tech</span></div>
+        <div class="theme-swatches">
+          <div style="background: #0B1116"></div>
+          <div style="background: #00C896"></div>
+          <div style="background: #ECF1F4"></div>
+          <div style="background: #027E60"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--ink-mute); margin: 14px 0 0; line-height: 1.5;">Midnight, teal elétrico, branco frio. Barber-tech, urbano, jovem.</p>
+      </button>
+
+      <button class="theme-card" data-theme-btn="terra" aria-pressed="false">
+        <div class="theme-name"><span>Terra</span><span>03 · Artesanal</span></div>
+        <div class="theme-swatches">
+          <div style="background: #F1ECE3"></div>
+          <div style="background: #2A4A3B"></div>
+          <div style="background: #8B5A2B"></div>
+          <div style="background: #1A1614"></div>
+        </div>
+        <p style="font-size: 12px; color: var(--ink-mute); margin: 14px 0 0; line-height: 1.5;">Creme, mata, tabaco, carvão. Studio artesanal, acolhedor, brasileiro.</p>
+      </button>
+    </div>
+
+    <div class="swatch-row">
+      <div class="swatch" style="background: var(--bg); color: var(--ink);">
+        <div><div class="sw-role">Background</div><div class="sw-name">Bg / Base</div></div>
+        <div class="sw-hex" id="hex-bg">—</div>
+      </div>
+      <div class="swatch" style="background: var(--bg-soft); color: var(--ink);">
+        <div><div class="sw-role">Surface</div><div class="sw-name">Bg / Soft</div></div>
+        <div class="sw-hex" id="hex-bg-soft">—</div>
+      </div>
+      <div class="swatch" style="background: var(--accent); color: var(--accent-ink);">
+        <div><div class="sw-role">Accent</div><div class="sw-name">Brand</div></div>
+        <div class="sw-hex" id="hex-accent">—</div>
+      </div>
+      <div class="swatch" style="background: var(--ink); color: var(--bg);">
+        <div><div class="sw-role">Text</div><div class="sw-name">Ink</div></div>
+        <div class="sw-hex" id="hex-ink">—</div>
+      </div>
+      <div class="swatch" style="background: var(--ok); color: #fff;">
+        <div><div class="sw-role">Status</div><div class="sw-name">OK</div></div>
+        <div class="sw-hex" id="hex-ok">—</div>
+      </div>
+      <div class="swatch" style="background: var(--danger); color: #fff;">
+        <div><div class="sw-role">Status</div><div class="sw-name">Danger</div></div>
+        <div class="sw-hex" id="hex-danger">—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== TYPOGRAPHY ============== -->
+<section id="type">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 04 · Tipografia</div>
+        <h2 class="section-title">Três <span class="it">vozes</span>,<br/>uma conversa.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Serifa elegante. Sans contemporâneo. Mono técnico.</p>
+        <p>Cormorant Garamond lidera momentos editoriais e emocionais — manchetes, citações, nomes. Bricolage Grotesque cobre todo o produto: botões, parágrafos, formulários. JetBrains Mono assina os números: horários, comissões, IDs, etiquetas.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>D1 · Display</div>
+        <div>Cormorant 500 italic · 120/.92</div>
+      </div>
+      <div class="type-sample">
+        <div class="spec-d1">Afie sua barbearia.</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>D2 · Display</div>
+        <div>Cormorant 500 · 80/100</div>
+      </div>
+      <div class="type-sample">
+        <div class="spec-d2">A navalha entende.</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>H1 · Heading</div>
+        <div>Cormorant 600 · 48/52</div>
+      </div>
+      <div class="type-sample">
+        <div class="spec-h1">Gestão completa para barbearias modernas.</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>H2 · Section</div>
+        <div>Bricolage 600 · 26/34</div>
+      </div>
+      <div class="type-sample">
+        <div class="spec-h2">Receita do mês · R$ 42.380,00</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>Body · Texto</div>
+        <div>Bricolage 400 · 16/26</div>
+      </div>
+      <div class="type-sample">
+        <p class="spec-body" style="margin: 0;">Em qualquer barbearia, o tempo é dinheiro. Navalha mede cada minuto de cadeira: ocupação por barbeiro, ticket médio por serviço, comissão automática, alerta de no-show. Você vê o que ninguém viu antes — e cobra pelo valor real do seu trabalho.</p>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>Label · UI</div>
+        <div>JetBrains Mono 500 · 12 · +220</div>
+      </div>
+      <div class="type-sample">
+        <span class="spec-label">Próximo cliente — 14:30</span>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div>Data · Numérico</div>
+        <div>JetBrains Mono 500 · 22 · tabular</div>
+      </div>
+      <div class="type-sample">
+        <span class="spec-data tnum">R$ 4.280,00 &nbsp; · &nbsp; 87.4% &nbsp; · &nbsp; #0142</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== VOICE ============== -->
+<section id="voice">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 05 · Voz</div>
+        <h2 class="section-title">Direto.<br/><span class="it">Profissional.</span></h2>
+      </div>
+      <div class="section-lead">
+        <p>Falamos a língua de quem trabalha — sem firula, sem promessa vazia.</p>
+        <p>Tom: direto, técnico, com elegância. Métrica acima de marketing. Verbo no ativo. Frase curta. Número antes de adjetivo. Brasileiro sem ser caricato.</p>
+      </div>
+    </div>
+
+    <div class="voice-grid">
+      <div class="voice-card do">
+        <span class="voice-tag do">✓ Faça</span>
+        <blockquote class="voice-quote">"Cadeira ocupada 87% do mês. Comissão calculada. Caixa fechado às 22:14."</blockquote>
+        <p class="voice-note">Métricas concretas, números primeiro, ação no passado.</p>
+      </div>
+      <div class="voice-card dont">
+        <span class="voice-tag dont">✗ Evite</span>
+        <blockquote class="voice-quote">"Revolucione sua barbearia com a melhor solução do mercado!"</blockquote>
+        <p class="voice-note">Adjetivo vazio, promessa genérica, exclamação.</p>
+      </div>
+      <div class="voice-card do">
+        <span class="voice-tag do">✓ Faça</span>
+        <blockquote class="voice-quote">"Ricardo cortou 14 vezes esta semana. Faltou 2. Cobre R$ 20 de no-show."</blockquote>
+        <p class="voice-note">Nome do barbeiro, número exato, ação sugerida.</p>
+      </div>
+      <div class="voice-card dont">
+        <span class="voice-tag dont">✗ Evite</span>
+        <blockquote class="voice-quote">"Nosso time de especialistas está sempre pronto para te ajudar 😊"</blockquote>
+        <p class="voice-note">Genérico, emoji, sem informação útil.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MOTIFS ============== -->
+<section id="motifs">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 06 · Motivos</div>
+        <h2 class="section-title">O <span class="it">vocabulário</span><br/>visual.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Quatro elementos que assinam a marca em qualquer aplicação.</p>
+        <p>O poste de barbeiro, o mármore do salão, o ticket vintage e a tipografia numérica grande — usados com parcimônia, eles dão a Navalha o tom de "barbearia clássica × dashboard moderno".</p>
+      </div>
+    </div>
+
+    <div class="motifs-grid">
+      <div class="motif-card">
+        <div class="motif-pole" aria-hidden="true"></div>
+        <div>
+          <p class="motif-name">Barber Pole</p>
+          <p class="motif-desc">Loading · Bordas · Divisores</p>
+        </div>
+      </div>
+      <div class="motif-card">
+        <div class="motif-marble" aria-hidden="true"></div>
+        <div>
+          <p class="motif-name">Mármore</p>
+          <p class="motif-desc">Fundo · Hero · Login</p>
+        </div>
+      </div>
+      <div class="motif-card">
+        <div class="motif-ticket" aria-hidden="true">
+          <div class="t-row"><span>ORDEM</span><span>#0142</span></div>
+          <div class="t-row"><span>BARBEIRO</span><span>R. SANTOS</span></div>
+          <div class="t-row"><span>SERVIÇO</span><span>CORTE + BARBA</span></div>
+          <div class="t-row"><span>VALOR</span><span>R$ 80,00</span></div>
+        </div>
+        <div>
+          <p class="motif-name">Ticket</p>
+          <p class="motif-desc">Agendamento · Comanda · Recibo</p>
+        </div>
+      </div>
+      <div class="motif-card">
+        <div class="motif-numbers" aria-hidden="true">
+          <div class="n">0</div><div class="n">1</div><div class="n">4</div><div class="n">2</div>
+        </div>
+        <div>
+          <p class="motif-name">Big Numbers</p>
+          <p class="motif-desc">KPI · Contadores · IDs</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== COMPONENTS ============== -->
+<section id="components">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 07 · Componentes</div>
+        <h2 class="section-title">Primitivos<br/>do <span class="it">sistema</span>.</h2>
+      </div>
+      <div class="section-lead">
+        <p>O kit base que assina toda interface Navalha.</p>
+        <p>Botões com cantos generosos (radius 999 para CTAs, 4 para campos), inputs com foco em latão (2px outline), badges monoespaçados com tracking aberto, cards de agendamento que herdam o formato de ticket.</p>
+      </div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-card">
+        <span class="comp-label">Botões</span>
+        <div class="comp-stage">
+          <button class="btn btn-primary">Agendar agora →</button>
+          <button class="btn btn-ghost">Ver detalhes</button>
+          <button class="btn btn-dark">Confirmar</button>
+        </div>
+      </div>
+      <div class="comp-card">
+        <span class="comp-label">Badges / Status</span>
+        <div class="comp-stage">
+          <span class="badge accent">Confirmado</span>
+          <span class="badge ok">Pago · R$ 80</span>
+          <span class="badge danger">No-show</span>
+          <span class="badge">Pendente</span>
+        </div>
+      </div>
+      <div class="comp-card">
+        <span class="comp-label">Campo</span>
+        <div class="comp-stage" style="display: block;">
+          <div class="field">
+            <label for="ex-input">Nome do cliente</label>
+            <input id="ex-input" type="text" value="Ricardo Albuquerque" />
+          </div>
+        </div>
+      </div>
+      <div class="comp-card" style="grid-column: span 2;">
+        <span class="comp-label">Card de agendamento</span>
+        <div class="comp-stage">
+          <div class="appt-card">
+            <div class="appt-time mono tnum">14:30<small>30min</small></div>
+            <div>
+              <div class="appt-name">Ricardo Albuquerque</div>
+              <div class="appt-service">Corte degradê + barba</div>
+            </div>
+            <span class="badge accent">Confirmado</span>
+          </div>
+          <div class="appt-card">
+            <div class="appt-time mono tnum" style="border-color: var(--ok); color: var(--ok);">15:00<small>45min</small></div>
+            <div>
+              <div class="appt-name">João Marcelo</div>
+              <div class="appt-service">Visagismo + sobrancelha</div>
+            </div>
+            <span class="badge ok">Pago</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card">
+        <span class="comp-label">Mini-KPI</span>
+        <div class="comp-stage" style="display: block;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 4px;">Receita hoje</div>
+          <div class="serif" style="font-size: 48px; font-weight: 600; line-height: 1;">R$ <span class="tnum">2.840</span></div>
+          <div style="margin-top: 8px;"><span class="badge ok">+18% vs ontem</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== APPLICATIONS ============== -->
+<section id="applications">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 08 · Aplicação</div>
+        <h2 class="section-title">A marca<br/>em <span class="it">contexto</span>.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Como Navalha aparece no mundo.</p>
+        <p>Previews dos quatro pontos de contato principais: a landing page que vende o produto, o app mobile do cliente, o cartão de visita do dono e o ícone do app na home screen.</p>
+      </div>
+    </div>
+
+    <div class="app-grid">
+      <div class="app-card">
+        <div class="app-label"><span>01 · Landing Page</span><span>navalha.com.br</span></div>
+        <div class="preview-landing">
+          <div class="pl-nav">
+            <span class="nav-logo">NAVALHA</span>
+            <span>Produto</span><span>Preços</span><span>Quem usa</span>
+            <span style="margin-left: auto; color: var(--accent);">Entrar →</span>
+          </div>
+          <div class="pl-title">Sua barbearia,<br/><em>afiada</em>.</div>
+          <div class="pl-sub">O sistema operacional das barbearias brasileiras. Do WhatsApp ao caixa, da agenda à comissão.</div>
+          <a class="btn btn-primary pl-btn" href="landing.html">Ver landing completa →</a>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="app-label"><span>02 · Mobile · Cliente</span><span>iOS · Android</span></div>
+        <div style="display: grid; place-items: center; flex: 1;">
+          <div class="preview-mobile">
+            <div class="pm-time">22:48</div>
+            <div class="pm-greeting">Olá,<br/>Ricardo.</div>
+            <div class="pm-card">
+              <div class="pm-when">Amanhã · 14:30</div>
+              <div class="pm-svc">Corte + Barba</div>
+              <div class="pm-who">Com Rafael Santos · 30min</div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: auto;">Agendar novo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="app-label"><span>03 · Cartão de visita</span><span>85 × 55 mm</span></div>
+        <div style="flex: 1; display: grid; place-items: center; padding: 20px 0;">
+          <div class="preview-card-bd">
+            <div>
+              <div class="cb-name">Rafael<br/>Santos</div>
+              <div class="cb-role">Master Barber</div>
+            </div>
+            <div class="cb-foot">
+              <div>NAVALHA · MEMBRO 0142</div>
+              <div style="opacity: .6; margin-top: 4px;">@rafa.barber · +55 11 99812-4422</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="app-label"><span>04 · App Icon</span><span>1024×1024</span></div>
+        <div class="preview-icon">
+          <div class="icon">N</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ROADMAP ============== -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 09 · Próximas entregas</div>
+        <h2 class="section-title">O que <span class="it">vem</span><br/>a seguir.</h2>
+      </div>
+      <div class="section-lead">
+        <p>Oito telas, cinco variações cada — todas construídas em cima do sistema acima.</p>
+        <p>Clique em qualquer card para abrir a tela. As marcadas "em construção" são as próximas a serem entregues nesta sequência de iterações.</p>
+      </div>
+    </div>
+
+    <div class="roadmap-grid">
+      <a class="rd-card" href="landing.html">
+        <div>
+          <div class="rd-num">01</div>
+          <h3 class="rd-title">Landing<br/>Page</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Hero, recursos por papel, prova social, preços, FAQ, CTA.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="dashboard.html">
+        <div>
+          <div class="rd-num">02</div>
+          <h3 class="rd-title">Dashboard<br/>do Dono</h3>
+        </div>
+        <div>
+          <p class="rd-desc">KPIs, gráfico, IA insights, ranking, agenda, estoque, clube.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="barbeiro.html">
+        <div>
+          <div class="rd-num">03</div>
+          <h3 class="rd-title">Painel do<br/>Barbeiro</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Mobile com 5 telas: Hoje, Agenda, Clientes, Carteira, Studio.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="secretaria.html">
+        <div>
+          <div class="rd-num">04</div>
+          <h3 class="rd-title">Painel da<br/>Secretária</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Timeline da agenda, WhatsApp inbox, caixa e fila de espera.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="cliente.html">
+        <div>
+          <div class="rd-num">05</div>
+          <h3 class="rd-title">App do<br/>Cliente</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Home com próximo agendamento + fluxo de agendar interativo.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="onboarding.html">
+        <div>
+          <div class="rd-num">06</div>
+          <h3 class="rd-title">Onboarding<br/>do Cliente SaaS</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Wizard de 6 passos com editor de serviços e projetor de receita.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card" href="agendamento.html">
+        <div>
+          <div class="rd-num">07</div>
+          <h3 class="rd-title">Fluxo de<br/>Agendamento</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Marketplace público · serviço → barbeiro → horário → confirma.</p>
+          <div class="rd-status"><span class="pip"></span> Pronto ✓</div>
+        </div>
+      </a>
+      <a class="rd-card future" href="#" aria-disabled="true">
+        <div>
+          <div class="rd-num">08</div>
+          <h3 class="rd-title">Brand<br/>Extensions</h3>
+        </div>
+        <div>
+          <p class="rd-desc">Email, social, embalagens, signatures — quando você pedir.</p>
+          <div class="rd-status"><span class="pip"></span> A definir</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand-word" style="margin-bottom: 4px;">NAVALHA</div>
+        <div class="foot-meta">Brand System Vol. I · 2026 · Confidential</div>
+      </div>
+      <div class="foot-meta" style="text-align: right;">
+        Sistema versionado · v1.0.0<br/>
+        <span style="color: var(--ink-soft); text-transform: none; letter-spacing: .04em; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px;">Marca + 7 telas entregues</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============ THEME SWITCHING ============
+const THEMES = {
+  classico: { bg: '#0F0D0A', bgSoft: '#15120E', accent: '#C9A35E', ink: '#F2EBDC', ok: '#7BA776', danger: '#C9533E' },
+  moderno:  { bg: '#0B1116', bgSoft: '#11181F', accent: '#00C896', ink: '#ECF1F4', ok: '#7BA776', danger: '#E66A50' },
+  terra:    { bg: '#F1ECE3', bgSoft: '#E8E1D2', accent: '#2A4A3B', ink: '#1A1614', ok: '#3D6B4E', danger: '#A8442E' },
+};
+
+function applyTheme(name) {
+  document.body.setAttribute('data-theme', name);
+  const t = THEMES[name];
+  document.getElementById('hex-bg').textContent = t.bg.toUpperCase();
+  document.getElementById('hex-bg-soft').textContent = t.bgSoft.toUpperCase();
+  document.getElementById('hex-accent').textContent = t.accent.toUpperCase();
+  document.getElementById('hex-ink').textContent = t.ink.toUpperCase();
+  document.getElementById('hex-ok').textContent = t.ok.toUpperCase();
+  document.getElementById('hex-danger').textContent = t.danger.toUpperCase();
+
+  document.querySelectorAll('[data-theme-btn]').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.themeBtn === name ? 'true' : 'false');
+  });
+  try { localStorage.setItem('navalha-theme', name); } catch(e) {}
+}
+
+document.querySelectorAll('[data-theme-btn]').forEach(b => {
+  b.addEventListener('click', () => applyTheme(b.dataset.themeBtn));
+});
+
+// init
+try {
+  const saved = localStorage.getItem('navalha-theme');
+  if (saved && THEMES[saved]) applyTheme(saved);
+  else applyTheme('classico');
+} catch(e) { applyTheme('classico'); }
+</script>
+
+</body>
+</html>

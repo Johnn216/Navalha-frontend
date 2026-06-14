@@ -1,0 +1,9 @@
+export { Botao } from "./Botao";
+export { Entrada } from "./Entrada";
+export { Selo } from "./Selo";
+export { Cartao } from "./Cartao";
+export { Comanda } from "./Comanda";
+export { SeloKpi } from "./SeloKpi";
+export { SeletorTema } from "./SeletorTema";
+export { DivisorBarbearia } from "./DivisorBarbearia";
+export { SlotHorario } from "./SlotHorario";
