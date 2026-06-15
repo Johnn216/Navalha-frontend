@@ -6,6 +6,7 @@ import { Cartao } from "@/compartilhado/componentes/ui/Cartao";
 import { Selo } from "@/compartilhado/componentes/ui/Selo";
 import { EstadoCarregando } from "@/compartilhado/componentes/feedback/EstadoCarregando";
 import { EstadoErro } from "@/compartilhado/componentes/feedback/EstadoErro";
+import { EstadoVazio } from "@/compartilhado/componentes/feedback/EstadoVazio";
 import { formatarBRL } from "@/compartilhado/lib/formatadores/moeda";
 import { formatarHora } from "@/compartilhado/lib/formatadores/data-hora";
 import { useUnidadeAtiva } from "@/compartilhado/hooks/useUnidadeAtiva";
@@ -58,8 +59,36 @@ export function PaginaRecepcao({ segmento = "recepcao" }: { segmento?: string })
 
   const emAtendimento = agendamentos.data?.data.filter((a) => a.status === "IN_SERVICE").length ?? 0;
 
-  if (agendamentos.isLoading) return <EstadoCarregando />;
-  if (agendamentos.isError) return <EstadoErro onTentarNovamente={() => agendamentos.refetch()} />;
+  const precisaAgenda = segmento === "recepcao" || segmento === "agenda";
+  const precisaWhatsApp = segmento === "recepcao" || segmento === "whatsapp";
+  const precisaEstoque = segmento === "estoque";
+
+  if (precisaAgenda && agendamentos.isLoading) return <EstadoCarregando />;
+  if (precisaAgenda && agendamentos.isError) {
+    return <EstadoErro onTentarNovamente={() => agendamentos.refetch()} />;
+  }
+  if (precisaWhatsApp && whatsapp.isLoading) return <EstadoCarregando />;
+  if (precisaWhatsApp && whatsapp.isError) {
+    return (
+      <LayoutApp itensNav={NAV} titulo="Recepção">
+        <EstadoVazio
+          titulo="WhatsApp em breve"
+          descricao="A integração com WhatsApp estará disponível em uma próxima fase."
+        />
+      </LayoutApp>
+    );
+  }
+  if (precisaEstoque && estoque.isLoading) return <EstadoCarregando />;
+  if (precisaEstoque && estoque.isError) {
+    return (
+      <LayoutApp itensNav={NAV} titulo="Recepção">
+        <EstadoVazio
+          titulo="Estoque em breve"
+          descricao="O controle de estoque estará disponível em uma próxima fase."
+        />
+      </LayoutApp>
+    );
+  }
 
   return (
     <LayoutApp itensNav={NAV} titulo="Recepção">
@@ -143,12 +172,16 @@ export function PaginaRecepcao({ segmento = "recepcao" }: { segmento?: string })
       {segmento === "estoque" && (
         <Cartao titulo="Estoque">
           <div className="space-y-2">
-            {estoque.data?.map((p) => (
-              <div key={p.id} className={cn("flex justify-between py-2", p.low_stock && "text-danger")}>
-                <span>{p.name}</span>
-                <span className="font-mono">{p.qty} un {p.low_stock && "· Baixo!"}</span>
-              </div>
-            ))}
+            {estoque.data?.length ? (
+              estoque.data.map((p) => (
+                <div key={p.id} className={cn("flex justify-between py-2", p.low_stock && "text-danger")}>
+                  <span>{p.name}</span>
+                  <span className="font-mono">{p.qty} un {p.low_stock && "· Baixo!"}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-ink-soft">Nenhum produto cadastrado.</p>
+            )}
           </div>
           <p className="mt-4 text-sm text-ink-mute">Fiscal NFS-e: emissão automática no fechamento</p>
         </Cartao>

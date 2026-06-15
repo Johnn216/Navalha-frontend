@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Unidade } from "@/compartilhado/tipos/entidades";
-import { UNIT_CENTRO_ID } from "@/compartilhado/mocks/dados-sementes";
+import { useSessao } from "@/funcionalidades/autenticacao/hooks/useSessao";
 
 interface ContextoUnidade {
   unidadeId: string;
@@ -13,13 +13,22 @@ interface ContextoUnidade {
 const UnidadeContext = createContext<ContextoUnidade | null>(null);
 
 export function ProvedorUnidadeAtiva({ children }: { children: ReactNode }) {
-  const [unidadeId, setUnidadeId] = useState(UNIT_CENTRO_ID);
+  const { unidades } = useSessao();
+  const [unidadeId, setUnidadeId] = useState("");
+
+  useEffect(() => {
+    if (unidades.length > 0) {
+      setUnidadeId((atual) => atual || unidades[0].id);
+    }
+  }, [unidades]);
+
+  const unidade = unidades.find((u) => u.id === unidadeId) ?? null;
 
   return (
     <UnidadeContext.Provider
       value={{
         unidadeId,
-        unidade: null,
+        unidade,
         definirUnidade: setUnidadeId,
       }}
     >

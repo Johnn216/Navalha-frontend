@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { entrar } from "@/compartilhado/lib/api/servicos/autenticacao.servico";
 import { obterMe } from "@/compartilhado/lib/api/servicos/autenticacao.servico";
@@ -10,16 +9,10 @@ import {
   useRedirecionarPosLogin,
   useSessao,
 } from "@/funcionalidades/autenticacao/hooks/useSessao";
+import { esquemaEntrar, type FormularioEntrar } from "@/funcionalidades/autenticacao/esquemas";
 import { Entrada } from "@/compartilhado/componentes/ui/Entrada";
 import { Botao } from "@/compartilhado/componentes/ui/Botao";
 import Link from "next/link";
-
-const esquema = z.object({
-  email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
-});
-
-type Formulario = z.infer<typeof esquema>;
 
 export function FormularioEntrar() {
   const { entrarComToken } = useSessao();
@@ -28,7 +21,7 @@ export function FormularioEntrar() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Formulario>({ resolver: zodResolver(esquema) });
+  } = useForm<FormularioEntrar>({ resolver: zodResolver(esquemaEntrar) });
 
   const mutacao = useMutation({
     mutationFn: entrar,

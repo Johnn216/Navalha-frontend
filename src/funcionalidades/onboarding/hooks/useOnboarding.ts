@@ -5,7 +5,6 @@ import {
   publicarOnboarding,
 } from "@/compartilhado/lib/api/servicos/onboarding.servico";
 import { listarServicos } from "@/compartilhado/lib/api/servicos/servicos.servico";
-import { UNIT_CENTRO_ID } from "@/compartilhado/mocks/dados-sementes";
 
 export const chavesConsultaOnboarding = {
   todos: ["onboarding"] as const,
@@ -19,10 +18,11 @@ export function useOnboarding() {
   });
 }
 
-export function useServicosOnboarding() {
+export function useServicosOnboarding(unitId: string) {
   return useQuery({
-    queryKey: chavesConsultaOnboarding.servicos(UNIT_CENTRO_ID),
-    queryFn: () => listarServicos(UNIT_CENTRO_ID),
+    queryKey: chavesConsultaOnboarding.servicos(unitId),
+    queryFn: () => listarServicos(unitId),
+    enabled: !!unitId,
   });
 }
 

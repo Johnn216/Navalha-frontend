@@ -14,7 +14,8 @@ import { listarBarbeiros } from "@/compartilhado/lib/api/servicos/barbeiros.serv
 import { obterDisponibilidade } from "@/compartilhado/lib/api/servicos/disponibilidade.servico";
 import { obterFidelidade } from "@/compartilhado/lib/api/servicos/fidelidade.servico";
 import { listarPlanos } from "@/compartilhado/lib/api/servicos/planos.servico";
-import { UNIT_CENTRO_ID } from "@/compartilhado/mocks/dados-sementes";
+import { useUnidadeAtiva } from "@/compartilhado/hooks/useUnidadeAtiva";
+import { useSessao } from "@/funcionalidades/autenticacao/hooks/useSessao";
 import { Calendar, Home, Gift, User } from "lucide-react";
 import { cn } from "@/compartilhado/lib/utilitarios/cn";
 import { format } from "date-fns";
@@ -30,33 +31,39 @@ const ABAS = [
 ];
 
 export function PaginaCliente({ segmento = "inicio" }: { segmento?: string }) {
+  const { unidadeId } = useUnidadeAtiva();
+  const { usuario } = useSessao();
   const [passo, setPasso] = useState(1);
   const [servicoId, setServicoId] = useState<string | null>(null);
   const [barbeiroId, setBarbeiroId] = useState<string | null>(null);
   const data = format(new Date(), "yyyy-MM-dd");
+  const clienteId = usuario?.id ?? CLIENTE_DEMO_ID;
 
   const servicos = useQuery({
-    queryKey: chavesConsultaCliente.servicos(UNIT_CENTRO_ID),
-    queryFn: () => listarServicos(UNIT_CENTRO_ID),
+    queryKey: chavesConsultaCliente.servicos(unidadeId),
+    queryFn: () => listarServicos(unidadeId),
+    enabled: !!unidadeId,
   });
   const barbeiros = useQuery({
-    queryKey: chavesConsultaCliente.barbeiros(UNIT_CENTRO_ID),
-    queryFn: () => listarBarbeiros(UNIT_CENTRO_ID),
+    queryKey: chavesConsultaCliente.barbeiros(unidadeId),
+    queryFn: () => listarBarbeiros(unidadeId),
+    enabled: !!unidadeId,
   });
   const slots = useQuery({
-    queryKey: chavesConsultaCliente.slots(UNIT_CENTRO_ID, barbeiroId ?? "", servicoId ?? "", data),
+    queryKey: chavesConsultaCliente.slots(unidadeId, barbeiroId ?? "", servicoId ?? "", data),
     queryFn: () =>
       obterDisponibilidade({
-        unit_id: UNIT_CENTRO_ID,
+        unit_id: unidadeId,
         barber_id: barbeiroId!,
         service_id: servicoId!,
         date: data,
       }),
-    enabled: !!barbeiroId && !!servicoId,
+    enabled: !!unidadeId && !!barbeiroId && !!servicoId,
   });
   const fidelidade = useQuery({
-    queryKey: chavesConsultaCliente.fidelidade(CLIENTE_DEMO_ID),
-    queryFn: () => obterFidelidade(CLIENTE_DEMO_ID),
+    queryKey: chavesConsultaCliente.fidelidade(clienteId),
+    queryFn: () => obterFidelidade(clienteId),
+    enabled: !!clienteId,
   });
   const planos = useQuery({
     queryKey: chavesConsultaCliente.planos(),

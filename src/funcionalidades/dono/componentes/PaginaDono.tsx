@@ -11,7 +11,6 @@ import {
   obterSerieFaturamento,
   obterRankingBarbeiros,
 } from "@/compartilhado/lib/api/servicos/metricas.servico";
-import { UNIT_CENTRO_ID } from "@/compartilhado/mocks/dados-sementes";
 import { useUnidadeAtiva } from "@/compartilhado/hooks/useUnidadeAtiva";
 import {
   BarChart,
@@ -23,6 +22,7 @@ import {
 } from "recharts";
 import { chavesConsultaDono } from "@/funcionalidades/dono/chaves-consulta";
 import { EstadoCarregando } from "@/compartilhado/componentes/feedback/EstadoCarregando";
+import { EstadoVazio } from "@/compartilhado/componentes/feedback/EstadoVazio";
 
 const NAV = [
   { href: "/dono", rotulo: "Visão geral" },
@@ -33,23 +33,36 @@ const NAV = [
 
 export function PaginaDono({ segmento = "visao" }: { segmento?: string }) {
   const { unidadeId } = useUnidadeAtiva();
-  const unit = unidadeId || UNIT_CENTRO_ID;
   const [periodo, setPeriodo] = useState<"day" | "week" | "month">("month");
 
   const metricas = useQuery({
-    queryKey: chavesConsultaDono.metricas(unit, periodo),
-    queryFn: () => obterMetricasVisaoGeral({ unit_id: unit, period: periodo }),
+    queryKey: chavesConsultaDono.metricas(unidadeId, periodo),
+    queryFn: () => obterMetricasVisaoGeral({ unit_id: unidadeId, period: periodo }),
+    enabled: !!unidadeId,
   });
   const serie = useQuery({
-    queryKey: chavesConsultaDono.receita(unit, periodo),
-    queryFn: () => obterSerieFaturamento({ unit_id: unit, granularity: periodo as "day" | "week" | "month" }),
+    queryKey: chavesConsultaDono.receita(unidadeId, periodo),
+    queryFn: () => obterSerieFaturamento({ unit_id: unidadeId, granularity: periodo }),
+    enabled: !!unidadeId,
   });
   const ranking = useQuery({
-    queryKey: chavesConsultaDono.ranking(unit, "2026-10"),
-    queryFn: () => obterRankingBarbeiros({ unit_id: unit, period: "2026-10" }),
+    queryKey: chavesConsultaDono.ranking(unidadeId, "2026-10"),
+    queryFn: () => obterRankingBarbeiros({ unit_id: unidadeId, period: "2026-10" }),
+    enabled: !!unidadeId,
   });
 
+  if (!unidadeId) return <EstadoCarregando />;
   if (metricas.isLoading) return <EstadoCarregando />;
+  if (metricas.isError) {
+    return (
+      <LayoutApp itensNav={NAV} titulo="Dono · Navalha">
+        <EstadoVazio
+          titulo="Métricas indisponíveis"
+          descricao="Os dados avançados estarão disponíveis em breve. A Fase 1 do backend cobre agenda e caixa."
+        />
+      </LayoutApp>
+    );
+  }
 
   const chartData =
     serie.data?.map((s) => ({
@@ -97,20 +110,24 @@ export function PaginaDono({ segmento = "visao" }: { segmento?: string }) {
 
           <Cartao titulo="Faturamento" className="mb-8">
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="name" stroke="var(--ink-mute)" fontSize={11} />
-                  <YAxis stroke="var(--ink-mute)" fontSize={11} tickFormatter={(v) => `R$${v / 1000}k`} />
-                  <Tooltip
-                    contentStyle={{ background: "var(--bg-elev)", border: "1px solid var(--rule)" }}
-                    formatter={(v) => [
-                      `R$ ${Number(v ?? 0).toLocaleString("pt-BR")}`,
-                      "Faturamento",
-                    ]}
-                  />
-                  <Bar dataKey="valor" fill="var(--accent)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {serie.isError ? (
+                <EstadoVazio titulo="Gráfico indisponível" descricao="Sem dados de faturamento no momento." />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <XAxis dataKey="name" stroke="var(--ink-mute)" fontSize={11} />
+                    <YAxis stroke="var(--ink-mute)" fontSize={11} tickFormatter={(v) => `R$${v / 1000}k`} />
+                    <Tooltip
+                      contentStyle={{ background: "var(--bg-elev)", border: "1px solid var(--rule)" }}
+                      formatter={(v) => [
+                        `R$ ${Number(v ?? 0).toLocaleString("pt-BR")}`,
+                        "Faturamento",
+                      ]}
+                    />
+                    <Bar dataKey="valor" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </Cartao>
         </>
@@ -118,20 +135,24 @@ export function PaginaDono({ segmento = "visao" }: { segmento?: string }) {
 
       {(segmento === "visao" || segmento === "equipe") && (
         <Cartao titulo="Ranking de barbeiros">
-          {ranking.data?.map((b, i) => (
-            <div key={b.barber_id} className="flex items-center justify-between border-b border-rule py-3">
-              <div className="flex items-center gap-3">
-                <span className="font-serif text-xl text-accent">{i + 1}★</span>
-                <div>
-                  <p>{b.display_name}</p>
-                  <p className="text-sm text-ink-mute">
-                    {formatarBRLCompacto(b.revenue_cents)} · {b.cuts} cortes · {b.occupancy_pct}%
-                  </p>
+          {ranking.isError ? (
+            <p className="text-ink-soft">Ranking indisponível no momento.</p>
+          ) : (
+            ranking.data?.map((b, i) => (
+              <div key={b.barber_id} className="flex items-center justify-between border-b border-rule py-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-serif text-xl text-accent">{i + 1}★</span>
+                  <div>
+                    <p>{b.display_name}</p>
+                    <p className="text-sm text-ink-mute">
+                      {formatarBRLCompacto(b.revenue_cents)} · {b.cuts} cortes · {b.occupancy_pct}%
+                    </p>
+                  </div>
                 </div>
+                <span className="font-mono text-sm text-ok">+{b.delta_pct}%</span>
               </div>
-              <span className="font-mono text-sm text-ok">+{b.delta_pct}%</span>
-            </div>
-          ))}
+            ))
+          )}
         </Cartao>
       )}
 
