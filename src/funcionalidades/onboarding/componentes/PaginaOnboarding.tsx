@@ -13,6 +13,7 @@ import {
   useSalvarPasso,
   usePublicarOnboarding,
 } from "@/funcionalidades/onboarding/hooks/useOnboarding";
+import { useUnidadeAtiva } from "@/compartilhado/hooks/useUnidadeAtiva";
 import { SeletorTema } from "@/compartilhado/componentes/ui/SeletorTema";
 import { useTema } from "@/compartilhado/hooks/useTema";
 import { Check } from "lucide-react";
@@ -29,8 +30,9 @@ const PASSOS = [
 ];
 
 export function PaginaOnboarding() {
+  const { unidadeId } = useUnidadeAtiva();
   const { data: onboarding, isLoading, isError, refetch } = useOnboarding();
-  const { data: servicos } = useServicosOnboarding();
+  const { data: servicos } = useServicosOnboarding(unidadeId);
   const salvar = useSalvarPasso();
   const publicar = usePublicarOnboarding();
   const { tema, trocarTema } = useTema();

@@ -2,23 +2,14 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { cadastrar } from "@/compartilhado/lib/api/servicos/autenticacao.servico";
 import { useSessao } from "@/funcionalidades/autenticacao/hooks/useSessao";
+import { esquemaCadastro, type FormularioCadastro } from "@/funcionalidades/autenticacao/esquemas";
 import { Entrada } from "@/compartilhado/componentes/ui/Entrada";
 import { Botao } from "@/compartilhado/componentes/ui/Botao";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const esquema = z.object({
-  name: z.string().min(2, "Nome obrigatório"),
-  email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "Mínimo 6 caracteres"),
-  phone: z.string().optional(),
-});
-
-type Formulario = z.infer<typeof esquema>;
 
 export function FormularioCadastro() {
   const { entrarComToken } = useSessao();
@@ -27,7 +18,7 @@ export function FormularioCadastro() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Formulario>({ resolver: zodResolver(esquema) });
+  } = useForm<FormularioCadastro>({ resolver: zodResolver(esquemaCadastro) });
 
   const mutacao = useMutation({
     mutationFn: cadastrar,
