@@ -12,6 +12,10 @@ import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { obterMe } from "@/compartilhado/lib/api/servicos/autenticacao.servico";
 import { CHAVE_TOKEN, ROTAS_POR_PAPEL } from "@/compartilhado/lib/constantes";
+import {
+  definirCookieSessao,
+  removerCookieSessao,
+} from "@/compartilhado/lib/sessao-cookie";
 import type { PapelUsuario, Unidade, Usuario } from "@/compartilhado/tipos/entidades";
 
 interface ContextoAuth {
@@ -25,15 +29,6 @@ interface ContextoAuth {
 
 const AuthContext = createContext<ContextoAuth | null>(null);
 
-function definirCookie(nome: string, valor: string) {
-  const expira = new Date(Date.now() + 7 * 864e5).toUTCString();
-  document.cookie = `${nome}=${encodeURIComponent(valor)}; path=/; expires=${expira}; SameSite=Lax`;
-}
-
-function removerCookie(nome: string) {
-  document.cookie = `${nome}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
-}
-
 export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [inicializado, setInicializado] = useState(false);
@@ -41,7 +36,9 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setToken(localStorage.getItem(CHAVE_TOKEN));
+    const salvo = localStorage.getItem(CHAVE_TOKEN);
+    if (salvo) definirCookieSessao(CHAVE_TOKEN, salvo);
+    setToken(salvo);
     setInicializado(true);
   }, []);
 
@@ -56,7 +53,7 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
     (access: string, refresh?: string) => {
       localStorage.setItem(CHAVE_TOKEN, access);
       if (refresh) localStorage.setItem("navalha-refresh", refresh);
-      definirCookie(CHAVE_TOKEN, access);
+      definirCookieSessao(CHAVE_TOKEN, access);
       setToken(access);
       queryClient.invalidateQueries({ queryKey: ["sessao"] });
     },
@@ -66,7 +63,7 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
   const sair = useCallback(() => {
     localStorage.removeItem(CHAVE_TOKEN);
     localStorage.removeItem("navalha-refresh");
-    removerCookie(CHAVE_TOKEN);
+    removerCookieSessao(CHAVE_TOKEN);
     setToken(null);
     queryClient.clear();
     router.push("/entrar");

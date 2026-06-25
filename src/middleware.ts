@@ -11,13 +11,28 @@ const PAPEL_POR_ROTA: Record<string, string[]> = {
   "/onboarding": ["OWNER", "MANAGER"],
 };
 
+function decodificarRoleJwt(token: string): string | null {
+  const partes = token.split(".");
+  if (partes.length !== 3) return null;
+  try {
+    const base64 = partes[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    const payload = JSON.parse(atob(padded)) as { role?: string };
+    return typeof payload.role === "string" ? payload.role : null;
+  } catch {
+    return null;
+  }
+}
+
 function extrairPapel(token: string | undefined): string | null {
   if (!token) return null;
+  const jwtRole = decodificarRoleJwt(token);
+  if (jwtRole) return jwtRole;
   if (token.includes("reception")) return "RECEPTION";
   if (token.includes("barber")) return "BARBER";
   if (token.includes("client")) return "CLIENT";
   if (token.includes("owner")) return "OWNER";
-  return "OWNER";
+  return null;
 }
 
 export function middleware(request: NextRequest) {

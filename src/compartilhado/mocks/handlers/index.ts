@@ -104,7 +104,14 @@ export const handlers = [
   http.get(`${BASE}/appointments`, ({ request }) => {
     const url = new URL(request.url);
     const unit_id = url.searchParams.get("unit_id");
-    const filtered = agendamentos.filter((a) => !unit_id || a.unit_id === unit_id);
+    const barber_id = url.searchParams.get("barber_id");
+    const date = url.searchParams.get("date");
+    const filtered = agendamentos.filter(
+      (a) =>
+        (!unit_id || a.unit_id === unit_id) &&
+        (!barber_id || a.barber_id === barber_id) &&
+        (!date || a.starts_at.startsWith(date))
+    );
     return HttpResponse.json(paginar(filtered));
   }),
 
@@ -186,7 +193,17 @@ export const handlers = [
   ),
 
   http.get(`${BASE}/commission/rules`, () => HttpResponse.json(regrasComissao)),
-  http.get(`${BASE}/commission/entries`, () => HttpResponse.json(paginar(lancamentosComissao))),
+  http.get(`${BASE}/commission/entries`, ({ request }) => {
+    const url = new URL(request.url);
+    const barber_id = url.searchParams.get("barber_id");
+    const period = url.searchParams.get("period");
+    const filtered = lancamentosComissao.filter(
+      (l) =>
+        (!barber_id || l.barber_id === barber_id) &&
+        (!period || l.period === period)
+    );
+    return HttpResponse.json(paginar(filtered));
+  }),
 
   http.get(`${BASE}/whatsapp/inbox`, () => HttpResponse.json(mensagensWhatsApp)),
   http.post(`${BASE}/whatsapp/send`, () => HttpResponse.json({ ok: true })),

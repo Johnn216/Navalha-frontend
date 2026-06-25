@@ -546,7 +546,7 @@ export function PaginaLanding() {
                     <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />
                   ))}
                 </div>
-                <p className="text-sm italic text-ink-soft">"{d.texto}"</p>
+                <p className="text-sm italic text-ink-soft">&quot;{d.texto}&quot;</p>
                 <div className="mt-4 border-t border-rule pt-3">
                   <p className="text-sm font-medium text-ink">{d.nome}</p>
                   <p className="font-mono text-[11px] text-ink-mute">{d.role}</p>

@@ -1,5 +1,6 @@
 import type { ErroApi, RespostaPaginada } from "@/compartilhado/tipos/api";
 import { CHAVE_TOKEN } from "@/compartilhado/lib/constantes";
+import { definirCookieSessao } from "@/compartilhado/lib/sessao-cookie";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
@@ -88,6 +89,7 @@ async function requisicao<T>(
         }>("/auth/refresh", { refresh_token: refresh }, { auth: false });
         localStorage.setItem(CHAVE_TOKEN, tokens.access_token);
         localStorage.setItem("navalha-refresh", tokens.refresh_token);
+        definirCookieSessao(CHAVE_TOKEN, tokens.access_token);
         headers.Authorization = `Bearer ${tokens.access_token}`;
         const retry = await fetch(montarUrl(caminho, opcoes?.params), {
           method: metodo,
