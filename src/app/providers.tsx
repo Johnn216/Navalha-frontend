@@ -16,10 +16,20 @@ export function Provedores({ children }: { children: ReactNode }) {
         },
       })
   );
+  
+  const [mocksProntos, setMocksProntos] = useState(
+    process.env.NEXT_PUBLIC_USAR_MOCKS !== "true"
+  );
 
   useEffect(() => {
-    iniciarMocks();
+    if (process.env.NEXT_PUBLIC_USAR_MOCKS === "true") {
+      iniciarMocks().then(() => {
+        setMocksProntos(true);
+      });
+    }
   }, []);
+
+  if (!mocksProntos) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
